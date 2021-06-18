@@ -5,6 +5,6 @@
 
 #include <iostream>
 #include <vector>
-#include <thread>
 
 #include "./include/vector2.h"
+#include "./include/game_object.h"

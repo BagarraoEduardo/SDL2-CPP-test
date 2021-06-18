@@ -1,15 +1,12 @@
+#ifndef Vector2_HEADER
+#define Vector2_HEADER
+
 #include <iostream>
 
 using namespace std;
 
 class Vector2
 {
-
-private:
-	
-	float x;
-	float y;
-
 public:
 	
 	Vector2();
@@ -31,4 +28,12 @@ public:
 	Vector2 operator * (Vector2 const& other);
 
 	friend ostream& operator << (ostream& outStream, Vector2 const& vector);
+
+
+private:
+
+	float x;
+	float y;
 };
+
+#endif;

@@ -6,7 +6,7 @@ cmake_minimum_required (VERSION 3.8)
 
 
 # Add source to this project's executable.
-add_executable (fabamaq-application-sfml "fabamaq-application-sfml.cpp" "fabamaq-application-sfml.h" "include/ball.h" "include/game.h" "include/pooler.h" "include/ball_color.h" "source/vector2.cpp" "include/utils/utils.h")
+add_executable (fabamaq-application-sfml "fabamaq-application-sfml.cpp" "fabamaq-application-sfml.h" "include/game_object.h" "include/game.h" "include/pooler.h"  "source/vector2.cpp"  "source/game_object.cpp")
 
 
 # TODO: Add tests and install targets if needed.
