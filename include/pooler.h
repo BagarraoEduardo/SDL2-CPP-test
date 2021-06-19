@@ -33,4 +33,4 @@ private:
 	vector<GameObject *> poolVector;
 };
 
-#endif;
+#endif

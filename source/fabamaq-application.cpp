@@ -1,10 +1,16 @@
-﻿#include "fabamaq-application.h"
+﻿#include "../include/fabamaq-application.h"
 
 using namespace std;
 
-
 int main()
 {
+	Game game;
+
+	game.Start();
+	
+	game.Quit();
+
+	/*
 	cout << "\n\n\n\n\n";
 
 	Pooler* pooler = Pooler::GetInstance();
@@ -130,6 +136,6 @@ int main()
 			cout << currentGameObject << " | final test" << endl;
 		}
 	}
-
+	*/
 	return 0;
 }

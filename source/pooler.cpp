@@ -133,7 +133,7 @@ void Pooler::Return(GameObject * gameObject)
 	if (hasReturned && poolVector.size() > size)
 	{
 		poolVector.erase(
-			std::remove_if(
+			remove_if(
 				poolVector.begin(), 
 				poolVector.end(), 
 				[gameObject](GameObject * comparingGameObject) { return comparingGameObject == gameObject; }), 
