@@ -1,4 +1,4 @@
-﻿#include "fabamaq-application-sfml.h"
+﻿#include "fabamaq-application.h"
 
 using namespace std;
 

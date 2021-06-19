@@ -9,7 +9,14 @@
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          //"name": "CMAKE_INSTALL_PREFIX",
+          //"value": "C:/Users/eduar/source/repos/fabamaq-application/out/install/build/x64-Debug-Windows",
+          //"type": "PATH"
+        }
+      ]
     }
   ]
 }
