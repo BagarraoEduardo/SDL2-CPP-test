@@ -29,7 +29,6 @@ public:
 
 	friend ostream& operator << (ostream& outStream, Vector2 const& vector);
 
-
 private:
 
 	float x;

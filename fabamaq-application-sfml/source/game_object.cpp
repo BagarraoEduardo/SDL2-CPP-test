@@ -2,6 +2,20 @@
 
 #include <string>
 
+GameObject::GameObject()
+{
+	Vector2 zero(0, 0);
+
+	this->speed = 0;
+
+	this->position = zero;
+	this->movement = zero;
+
+	this->color = Color::RED;
+
+	this->isActive = true;
+}
+
 GameObject::GameObject(const GameObject& other) 
 {
 	this->speed = other.speed;
@@ -10,6 +24,8 @@ GameObject::GameObject(const GameObject& other)
 	this->movement = other.movement;
 
 	this->color = other.color;
+
+	this->isActive = true;
 }
 
 GameObject::GameObject(Vector2 position, Color color)
@@ -19,6 +35,8 @@ GameObject::GameObject(Vector2 position, Color color)
 
 	speed = 0;
 	movement = Vector2(0, 0);
+
+	this->isActive = true;
 }
 
 GameObject::GameObject(Vector2 position, Color color, Vector2 movement)
@@ -28,6 +46,8 @@ GameObject::GameObject(Vector2 position, Color color, Vector2 movement)
 	this->movement = movement;
 
 	this->speed = 0;
+
+	this->isActive = true;
 }
 
 GameObject::GameObject(Vector2 position, Color color, Vector2 movement, float speed)
@@ -36,6 +56,8 @@ GameObject::GameObject(Vector2 position, Color color, Vector2 movement, float sp
 	this->color = color;
 	this->movement = movement;
 	this->speed = speed;
+
+	this->isActive = true;
 }
 
 float GameObject::GetSpeed() 
@@ -72,6 +94,15 @@ GameObject::Color GameObject::GetColor()
 void GameObject::SetColor(Color color)
 {
 	this->color = color;
+}
+
+bool GameObject::IsActive()
+{
+	return this->isActive;
+}
+void GameObject::SetActive(bool isActive)
+{
+	this->isActive = isActive;
 }
 
 ostream& operator << (ostream& outStream, GameObject::Color const& color)

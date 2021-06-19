@@ -7,8 +7,9 @@ class GameObject
 {
 
 public:
-	enum Color { LILAC=0, YELLOW = 1, BLUE = 2, TURQUOISE = 3, RED = 4, ORANGE = 5, GREEN = 6 };
+	enum Color { LILAC, YELLOW, BLUE, TURQUOISE, RED, ORANGE, GREEN };
 
+	GameObject();
 	GameObject(const GameObject& other);
 	GameObject(Vector2 position, Color color);
 	GameObject(Vector2 position, Color color, Vector2 movement);
@@ -26,18 +27,24 @@ public:
 	Color GetColor();
 	void SetColor(Color Color);
 
+	bool IsActive();
+	void SetActive(bool isActive);
+
 	friend ostream& operator << (ostream& outStream, GameObject const& vector);
 
 	friend ostream& operator << (ostream& outStream, Color const& vector);
 
 
 private:
+
 	float speed;
 
 	Vector2 position;
 	Vector2 movement;
 
 	GameObject::Color color;
+
+	bool isActive;
 };
 
 #endif
