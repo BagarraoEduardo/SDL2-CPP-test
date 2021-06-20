@@ -1,10 +1,9 @@
 #include <cstdlib>
+#include <array>
 
 #include "../include/game.h"
 #include "../include/error.h"
 #include "../include/constants.h"
-
-#include<array>
 
 using namespace std;
 
@@ -17,6 +16,7 @@ Game::Game()
     this->window = nullptr;
     this->windowSurface = nullptr;
 
+    this->mersenneTwisterPseudoRandomGenerator = mt19937(this->randomDevice());
 }
 
 void Game::Start()
@@ -81,9 +81,9 @@ void Game::Init()
             Vector2 randomPosition = GenerateRandomPosition();
             Vector2 randomMovement = GenerateRandomMovement();
             GameObject::Color randomColor = GenerateRandomColor();
-            float randomSpeed = 
-                static_cast<float>(rand() % static_cast<int>(Constants::GAME_OBJECT_MAX_SPEED - Constants::GAME_OBJECT_MIN_SPEED) + static_cast<int>(Constants::GAME_OBJECT_MIN_SPEED)); 
-
+  
+            float randomSpeed = GenerateRandomNumber(Constants::GAME_OBJECT_MAX_SPEED, Constants::GAME_OBJECT_MIN_SPEED);
+  
             gameObjectPointerToStore->SetColor(randomColor);
             gameObjectPointerToStore->SetPosition(randomPosition);
             gameObjectPointerToStore->SetMovement(randomMovement);
@@ -148,7 +148,7 @@ void Game::HandleLogic(float deltaTime)
     {
         GameObject * pointedGameObject = gameObjectVector[i];
 
-        pointedGameObject->Update(deltaTime); //TODO: mudar o deltatime
+        pointedGameObject->Update(deltaTime);
     }
 }
 
@@ -205,11 +205,13 @@ Vector2 Game::GenerateRandomPosition()
 {
     float minWidth, maxWidth, minHeight, maxHeight;
 
-    minWidth = maxHeight = 0 + Constants::GAME_OBJECT_GENERATION_MARGIN;
-    maxWidth = minHeight = Constants::SCREEN_WIDTH - Constants::GAME_OBJECT_GENERATION_MARGIN;
+    minWidth = maxHeight = Constants::GAME_OBJECT_GENERATION_MARGIN;
 
-    float randomWidth = static_cast<float>(rand() % static_cast<int>(maxWidth));
-    float randomHeight = static_cast<float>(rand() % static_cast<int>(maxHeight));;
+    maxWidth = Constants::SCREEN_WIDTH - Constants::GAME_OBJECT_GENERATION_MARGIN;
+    minHeight = Constants::SCREEN_HEIGHT - Constants::GAME_OBJECT_GENERATION_MARGIN;
+
+    float randomWidth = GenerateRandomNumber(minWidth, maxWidth);
+    float randomHeight = GenerateRandomNumber(minHeight, maxHeight);
 
     return Vector2(randomWidth, randomHeight);
 }
@@ -225,14 +227,43 @@ Vector2 Game::GenerateRandomMovement()
         Vector2(0,-1)
     }};
 
-    int chosenIndex = rand() % possibleMovementsArray.size();
+    int chosenIndex = GenerateRandomNumber(possibleMovementsArray.size());
 
     return possibleMovementsArray[chosenIndex];
 }
 
 GameObject::Color Game::GenerateRandomColor()
 {
-    GameObject::Color color = static_cast<GameObject::Color>(rand() % GameObject::Color::GREEN);
+    int chosenIndex = GenerateRandomNumber(GameObject::Color::GREEN);
+
+    GameObject::Color color = static_cast<GameObject::Color>(chosenIndex);
 
     return color;
+}
+
+int Game::GenerateRandomNumber(int maximum, int minimum /* = 0 */) 
+{
+    uniform_int_distribution<int> distribution(minimum, maximum); 
+
+    int number_generated = distribution(this->mersenneTwisterPseudoRandomGenerator);
+
+    return number_generated;
+}
+
+float Game::GenerateRandomNumber(float maximum, float minimum /* = 0.0 */) 
+{
+    uniform_real_distribution<float> distribution(minimum, maximum); 
+
+    int number_generated = distribution(this->mersenneTwisterPseudoRandomGenerator);
+
+    return number_generated;
+}
+
+size_t Game::GenerateRandomNumber(size_t maximum, size_t minimum /* = 0 */) 
+{
+    uniform_int_distribution<size_t> distribution(minimum, maximum); 
+
+    size_t number_generated = distribution(this->mersenneTwisterPseudoRandomGenerator);
+    
+    return number_generated;
 }
