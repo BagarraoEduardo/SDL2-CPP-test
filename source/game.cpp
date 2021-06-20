@@ -12,6 +12,8 @@ Game::Game()
 {
     this->isRunning = false;
 
+    this->frameTicks = 0;
+
     this->window = nullptr;
     this->windowSurface = nullptr;
 
@@ -25,12 +27,8 @@ void Game::Start()
         this->isRunning = true;
 
         while(isRunning) 
-        {
-            HandleEvents();
-
-            HandleLogic();
-
-            HandleRendering();
+        {    
+            this->Update();
         }
     }
     catch(int errorCode)
@@ -107,7 +105,7 @@ void Game::Init()
     {
         throw Error::SDL_INIT_ERROR;
     }
-    
+
     window = SDL_CreateWindow(
         "A Lot of Balls!",
         SDL_WINDOWPOS_UNDEFINED,
@@ -133,24 +131,24 @@ void Game::HandleEvents()
     SDL_Event event;
     if (SDL_PollEvent(&event))
     {
-        if (event.type == SDL_KEYDOWN)
-        {
-
-        }
-        else if (event.type == SDL_QUIT)
+        if (event.type == SDL_QUIT)
         {
             isRunning = false;
+        }
+        else  if (event.type == SDL_KEYDOWN)
+        {
+
         }
     }
 }
 
-void Game::HandleLogic()
+void Game::HandleLogic(float deltaTime)
 {
     for(size_t i = 0; i < gameObjectVector.size(); i++)
     {
         GameObject * pointedGameObject = gameObjectVector[i];
 
-        pointedGameObject->Update(1); //TODO: mudar o deltatime
+        pointedGameObject->Update(deltaTime); //TODO: mudar o deltatime
     }
 }
 
@@ -175,15 +173,40 @@ void Game::HandleRendering()
     SDL_UpdateWindowSurface(window);
 }
 
+void Game::Update()
+{
+    float deltaTime = GenerateDeltaTime();
+
+    this->frameTicks = SDL_GetTicks();
+
+    this->HandleEvents();
+    this->HandleLogic(deltaTime);
+    this->HandleRendering();
+}
+
+float Game::GenerateDeltaTime()
+{
+    while (!SDL_TICKS_PASSED(SDL_GetTicks(), frameTicks + static_cast<Uint32>(16.666f)))
+    {
+        continue;
+    }
+
+    float deltaTime = static_cast<float>((SDL_GetTicks() - frameTicks)) / 1000.0;
+
+    if (deltaTime < 0.5)
+    {
+        deltaTime = 0.5;
+    }
+
+    return deltaTime;
+}
+
 Vector2 Game::GenerateRandomPosition()
 {
     float minWidth, maxWidth, minHeight, maxHeight;
 
     minWidth = maxHeight = 0 + Constants::GAME_OBJECT_GENERATION_MARGIN;
     maxWidth = minHeight = Constants::SCREEN_WIDTH - Constants::GAME_OBJECT_GENERATION_MARGIN;
-
-    // float randomWidth = GetRandomNumberBetweenTwoNumbers(minWidth, maxWidth);
-    // float randomHeight = GetRandomNumberBetweenTwoNumbers(minHeight, maxHeight);
 
     float randomWidth = static_cast<float>(rand() % static_cast<int>(maxWidth));
     float randomHeight = static_cast<float>(rand() % static_cast<int>(maxHeight));;

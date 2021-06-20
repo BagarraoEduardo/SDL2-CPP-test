@@ -20,8 +20,12 @@ private:
     void Init();
 
     void HandleEvents();
-    void HandleLogic();
+    void HandleLogic(float deltaTime);
     void HandleRendering();
+
+    void Update();
+
+    float GenerateDeltaTime();
 
     static Vector2 GenerateRandomPosition();
     static Vector2 GenerateRandomMovement();
@@ -31,6 +35,8 @@ private:
     SDL_Surface *windowSurface;
 
     bool isRunning;
+    
+    Uint32 frameTicks;
 
     vector <GameObject*> gameObjectVector;
 };

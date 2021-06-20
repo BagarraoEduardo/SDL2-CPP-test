@@ -15,8 +15,8 @@ public:
     static const int GAME_OBJECT_POOL_LIMIT = 1;
 
     //game object
-    static constexpr float GAME_OBJECT_MIN_SPEED = 5;
-    static constexpr float GAME_OBJECT_MAX_SPEED = 10;
+    static constexpr float GAME_OBJECT_MIN_SPEED = 3;
+    static constexpr float GAME_OBJECT_MAX_SPEED = 6;
 
     static constexpr float GAME_OBJECT_GENERATION_MARGIN = 10;
 };

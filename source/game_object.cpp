@@ -115,13 +115,15 @@ GameObject::GameObject(Vector2 position, Color color, Vector2 movement, float sp
 
 void GameObject::Update(float deltaTime)
 {
+	int roundedDeltaTime = static_cast<int>(deltaTime + 0.5);
+
 	Vector2 currentPosition(position->x, position->y);
-	Vector2 sumVector = movement * speed * deltaTime;
+	Vector2 sumVector = movement * speed * roundedDeltaTime;
 
 	Vector2 newPosition = currentPosition + sumVector;
 
-	this->position->x = newPosition.GetX();
-	this->position->y = newPosition.GetY();
+	this->position->x = static_cast<int>(newPosition.GetX());
+	this->position->y = static_cast<int>(newPosition.GetY());
 
 	if (newPosition.GetX() > Constants::SCREEN_WIDTH)
 	{
