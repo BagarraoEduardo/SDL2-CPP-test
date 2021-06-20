@@ -2,12 +2,15 @@
 #define GameObject_HEADER
 
 #include "vector2.h"
+#include "SDL2/SDL.h"
 
 class GameObject
 {
 
 public:
 	enum Color { LILAC, YELLOW, BLUE, TURQUOISE, RED, ORANGE, GREEN };
+
+	~GameObject();
 
 	GameObject();
 	GameObject(const GameObject& other);
@@ -18,7 +21,7 @@ public:
 	float GetSpeed();
 	void SetSpeed(float speed);
 
-	Vector2 GetPosition();
+	SDL_Rect* GetPosition();
 	void SetPosition(Vector2 position);
 
 	Vector2 GetMovement();
@@ -27,6 +30,8 @@ public:
 	Color GetColor();
 	void SetColor(Color Color);
 
+	SDL_Surface * GetSurface();
+	
 	bool IsActive();
 	void SetActive(bool isActive);
 
@@ -36,15 +41,18 @@ public:
 
 
 private:
-
 	float speed;
 
-	Vector2 position;
+	SDL_Rect *position;
 	Vector2 movement;
 
 	GameObject::Color color;
 
 	bool isActive;
+
+	SDL_Surface *surface;
+
+	void LoadImageSurface();
 };
 
 #endif

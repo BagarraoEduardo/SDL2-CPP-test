@@ -38,9 +38,9 @@ void Pooler::Init(const int size, const int limit)
 	
 	for (size_t i = 0; i < this->size; i++) 
 	{
-		GameObject createdGameObject = CreateGameObject();
+		// GameObject createdGameObject = CreateGameObject();
 		
-		GameObject * gameObjectPointer = new GameObject(createdGameObject);
+		GameObject * gameObjectPointer = new GameObject(CreateGameObject());
 		gameObjectPointer->SetActive(false);
 
 		poolVector.push_back(gameObjectPointer);

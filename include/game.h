@@ -18,10 +18,12 @@ public:
     void Quit();
 
 private:
-    const Pooler * POOLER_INSTANCE = Pooler::GetInstance();
     
     static const int SCREEN_WIDTH = 960;
     static const int SCREEN_HEIGHT = 540;
+
+    static const int GAME_OBJECT_POOL_SIZE = 1;
+    static const int GAME_OBJECT_POOL_LIMIT = 1;
 
     void Init();
 
