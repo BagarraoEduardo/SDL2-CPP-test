@@ -2,7 +2,6 @@
 #define Game_HEADER
 
 #include <vector>
-// #include <set>
 #include<random>
 
 #include <SDL2/SDL.h>
@@ -41,23 +40,25 @@ private:
     //action methods
     void ReturnGameObjectAction();
     void AddGameObjectAction(bool isInitializing);
+    void InsertCreditAction();
+    void RemoveAllCreditsAction();
     void PlayAction();
     void StopAction();
 
     SDL_Window * window;
     SDL_Surface *windowSurface;
 
-    bool isRunning;
-    bool isPlaying;
-
     Uint32 frameTicks;
 
     random_device randomDevice;
     mt19937 mersenneTwisterPseudoRandomGenerator;
 
+    bool isRunning;
+    bool isPlaying;
+    int credits;
+
     vector <GameObject*> gameObjectPointerVector;
     
-    // set<Action> actionsTaken;
     Action keyActionToTake;
     Action lastActionToken;
 

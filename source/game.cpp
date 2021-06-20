@@ -12,6 +12,7 @@ Game::Game()
 {
     this->isRunning = false;
     this->isPlaying = false;
+    this->credits = 0;
 
     this->frameTicks = 0;
 
@@ -161,8 +162,10 @@ void Game::HandleLogic(float deltaTime)
                 PlayAction();
                 break;
             case Action::INSERT_CREDIT:
+                InsertCreditAction();
                 break;
             case Action::REMOVE_ALL_CREDITS:
+                RemoveAllCreditsAction();
                 break;
             case Action::RETURN_GAME_OBJECT:
                 ReturnGameObjectAction();
@@ -389,10 +392,6 @@ void Game::AddGameObjectAction(bool isInitializing)
             Vector2 randomMovement = GenerateRandomMovement();
             GameObject::Color randomColor = GenerateRandomColor();
 
-            string x = "new position: " + to_string(randomPosition.GetX()) + "|" + to_string(randomPosition.GetY());
-
-            SDL_Log(x.c_str());
-
             float randomSpeed = GenerateRandomNumber(Constants::GAME_OBJECT_MAX_SPEED, Constants::GAME_OBJECT_MIN_SPEED);
 
             gameObjectPointerToStore->SetColor(randomColor);
@@ -411,16 +410,27 @@ void Game::AddGameObjectAction(bool isInitializing)
 
 void Game::PlayAction()
 {
-    if(!this->isPlaying)
-    {
-         Pooler::GetInstance()->Freezed(false, gameObjectPointerVector);
-         SDL_Log("The game has started.");
-    }
-    else
+    if(isPlaying)
     {
         SDL_Log("The game has already started.");
     }
-    this->isPlaying = true;
+    else
+    {
+        if(credits > 0)
+        {
+            --credits;
+            
+            Pooler::GetInstance()->Freezed(false, gameObjectPointerVector);
+            this->isPlaying = true;
+
+            string message = "The game has started. Credits Left: " + to_string(credits);
+            SDL_Log("%s", message.c_str());
+        }
+        else
+        {
+            SDL_Log("You're ran out of credits. Please insert more if you want to play.");
+        }
+    }
 }
 
 void Game::StopAction()
@@ -440,4 +450,20 @@ void Game::StopAction()
          SDL_Log("The game has already stopped.");
     }
     this->isPlaying = false;
+}
+
+void Game::InsertCreditAction()
+{
+    ++this->credits;
+
+    string message = "Credit successfully inserted! Current Credits: " + to_string(credits);
+
+    SDL_Log("%s", message.c_str());
+}
+
+void Game::RemoveAllCreditsAction()
+{
+    this->credits = 0;
+    
+    SDL_Log("All the credits were removed. Please don't forget to grab them all.");
 }
