@@ -1,18 +1,19 @@
 #ifndef Constants_HEADER
 #define Constants_HEADER
 
-// #include "vector2.h";
-
 class Constants
 {
 public:
+    //generic
+    static const int GENERIC_LOOP_TIMEOUT = 30;
+
     //screen
     static const int SCREEN_WIDTH = 960;
     static const int SCREEN_HEIGHT = 540;
 
     //pool
-    static const int GAME_OBJECT_POOL_SIZE = 500;
-    static const int GAME_OBJECT_POOL_LIMIT = 1000;
+    static const int GAME_OBJECT_POOL_SIZE = 5;
+    static const int GAME_OBJECT_POOL_LIMIT = 10;
 
     //game object
     static constexpr float GAME_OBJECT_MIN_SPEED = 1;

@@ -41,8 +41,6 @@ void Pooler::Init(const int size, const int limit)
 	
 	for (size_t i = 0; i < this->size; i++) 
 	{
-		// GameObject createdGameObject = CreateGameObject();
-		
 		GameObject * gameObjectPointer = new GameObject(CreateGameObject());
 		gameObjectPointer->SetActive(false);
 
@@ -104,8 +102,7 @@ GameObject* Pooler::GetNext(GameObject::Color color)
 
 	if (poolVector.size() < limit)
 	{
-		GameObject newGameObject = CreateGameObject();
-		GameObject* newGameObjectPointer = new GameObject(newGameObject);
+		GameObject* newGameObjectPointer = new GameObject(CreateGameObject());
 
 		poolVector.push_back(newGameObjectPointer);
 		newGameObjectPointer->SetActive(true);

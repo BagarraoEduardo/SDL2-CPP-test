@@ -16,6 +16,9 @@ Game::Game()
     this->window = nullptr;
     this->windowSurface = nullptr;
 
+    this->keyActionToTake = Action::NONE;
+    this->lastActionToken = Action::NONE;
+
     this->mersenneTwisterPseudoRandomGenerator = mt19937(this->randomDevice());
 }
 
@@ -74,31 +77,7 @@ void Game::Init()
 
     for(size_t i = 0; i < Constants::GAME_OBJECT_POOL_SIZE; i++)
     {
-        if(Pooler::GetInstance()->HasNext())
-        {
-            GameObject * gameObjectPointerToStore = Pooler::GetInstance()->GetNext(GameObject::Color::RED);
-            
-            Vector2 randomPosition = GenerateRandomPosition();
-            Vector2 randomMovement = GenerateRandomMovement();
-            GameObject::Color randomColor = GenerateRandomColor();
-  
-            float randomSpeed = GenerateRandomNumber(Constants::GAME_OBJECT_MAX_SPEED, Constants::GAME_OBJECT_MIN_SPEED);
-  
-            gameObjectPointerToStore->SetColor(randomColor);
-            gameObjectPointerToStore->SetPosition(randomPosition);
-            gameObjectPointerToStore->SetMovement(randomMovement);
-            gameObjectPointerToStore->SetSpeed(randomSpeed);
-
-            if(!gameObjectPointerToStore->IsActive())
-            {
-                gameObjectPointerToStore->SetActive(true);
-            }
-            gameObjectVector.push_back(gameObjectPointerToStore);
-        }
-        else
-        {
-            break;
-        }
+        AddGameObject();
     }
 
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -131,22 +110,74 @@ void Game::HandleEvents()
     SDL_Event event;
     if (SDL_PollEvent(&event))
     {
+        keyActionToTake = Action::NONE;
+
         if (event.type == SDL_QUIT)
         {
             isRunning = false;
         }
         else  if (event.type == SDL_KEYDOWN)
         {
-
+            switch (event.key.keysym.sym)
+            {
+            case SDLK_1:
+                keyActionToTake = Action::INSERT_CREDIT;
+                break;
+            case SDLK_2:
+                keyActionToTake = Action::REMOVE_ALL_CREDITS;
+                break;
+            case SDLK_z:
+                keyActionToTake = Action::START_GAME;
+                break;
+            case SDLK_x:
+                keyActionToTake = Action::STOP_GAME;
+                break;
+            case SDLK_DOWN:
+                keyActionToTake = Action::RETURN_GAME_OBJECT;
+                break;
+            case SDLK_UP:
+                keyActionToTake = Action::ADD_GAME_OBJECT;
+                break;
+            default:
+                keyActionToTake = Action::NONE;
+                break;
+            }
         }
     }
 }
 
 void Game::HandleLogic(float deltaTime)
 {
-    for(size_t i = 0; i < gameObjectVector.size(); i++)
+    if(this->keyActionToTake != this->lastActionToken)
     {
-        GameObject * pointedGameObject = gameObjectVector[i];
+        switch(keyActionToTake)
+        {
+            case Action::INSERT_CREDIT:
+                break;
+            case Action::REMOVE_ALL_CREDITS:
+                break;
+            case Action::RETURN_GAME_OBJECT:
+                ReturnGameObject();
+                break;
+            case Action::ADD_GAME_OBJECT:
+                AddGameObject();
+                break;
+            case Action::NONE:
+            default:
+                break;
+        }
+    }
+    
+    // while(--i != 0)
+    // {
+    //     AddGameObject();
+    // }
+
+    this->lastActionToken = this->keyActionToTake;
+    
+    for(size_t i = 0; i < gameObjectPointerVector.size(); i++)
+    {
+        GameObject * pointedGameObject = gameObjectPointerVector[i];
 
         pointedGameObject->Update(deltaTime);
     }
@@ -156,9 +187,9 @@ void Game::HandleRendering()
 {
     SDL_FillRect(windowSurface, NULL, SDL_MapRGB(windowSurface->format, 0, 0, 0));
 
-    for(size_t i = 0; i < gameObjectVector.size(); i++)
+    for(size_t i = 0; i < gameObjectPointerVector.size(); i++)
     {
-        GameObject * gameObjectPointerToRender = gameObjectVector[i];
+        GameObject * gameObjectPointerToRender = gameObjectPointerVector[i];
 
         if(gameObjectPointerToRender->IsActive())
         {
@@ -266,4 +297,84 @@ size_t Game::GenerateRandomNumber(size_t maximum, size_t minimum /* = 0 */)
     size_t number_generated = distribution(this->mersenneTwisterPseudoRandomGenerator);
     
     return number_generated;
+}
+
+
+void Game::ReturnGameObject()
+{
+    if(gameObjectPointerVector.size() > 0)
+        {
+            int chosenIndexToReturn; 
+            int numberOfTries = 0;
+            bool didTimeout = false;
+
+            GameObject * gameObjectToBeReturnedPointer = nullptr;
+
+            do
+            {
+                int chosenIndexToReturn = GenerateRandomNumber(gameObjectPointerVector.size() - 1);
+
+                if(++numberOfTries > Constants::GENERIC_LOOP_TIMEOUT)
+                {
+                    didTimeout = true;
+                    break;
+                }
+
+                gameObjectToBeReturnedPointer = gameObjectPointerVector[chosenIndexToReturn];
+
+            } while(gameObjectToBeReturnedPointer == nullptr);
+        
+            if(didTimeout)
+            {
+                SDL_Log("Timeout reached while searching for an available gameobject to avoid the possibility of having infinite loops.");
+            }
+            else
+            {
+               Pooler::GetInstance()->Return(gameObjectToBeReturnedPointer);
+
+               gameObjectPointerVector.erase(
+                   std::remove_if(
+                       gameObjectPointerVector.begin(),
+                       gameObjectPointerVector.end(),
+                       [gameObjectToBeReturnedPointer](GameObject *comparingGameObject)
+                       {
+                           return (comparingGameObject == gameObjectToBeReturnedPointer);
+                       }),
+                   gameObjectPointerVector.end());
+            }
+
+        }
+        else
+        {
+            SDL_Log("Currently there's no active gameobjects in the pool.");
+        }
+}
+
+void Game::AddGameObject()
+{
+    if(!Pooler::GetInstance()->HasNext())
+    {
+        SDL_Log("The pooling system is being used to its full capacity at this moment.");
+    }
+    else
+    {
+        GameObject *gameObjectPointerToStore = Pooler::GetInstance()->GetNext(GameObject::Color::RED);
+
+        Vector2 randomPosition = GenerateRandomPosition();
+        Vector2 randomMovement = GenerateRandomMovement();
+        GameObject::Color randomColor = GenerateRandomColor();
+
+        float randomSpeed = GenerateRandomNumber(Constants::GAME_OBJECT_MAX_SPEED, Constants::GAME_OBJECT_MIN_SPEED);
+
+        gameObjectPointerToStore->SetColor(randomColor);
+        gameObjectPointerToStore->SetPosition(randomPosition);
+        gameObjectPointerToStore->SetMovement(randomMovement);
+        gameObjectPointerToStore->SetSpeed(randomSpeed);
+
+        if (!gameObjectPointerToStore->IsActive())
+        {
+            gameObjectPointerToStore->SetActive(true);
+        }
+        this->gameObjectPointerVector.push_back(gameObjectPointerToStore);
+    }
 }

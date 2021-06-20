@@ -2,11 +2,13 @@
 #define Game_HEADER
 
 #include <vector>
+// #include <set>
 #include<random>
 
 #include <SDL2/SDL.h>
 
 #include "pooler.h"
+#include "action.h"
 #include "game_object.h"
 
 class Game
@@ -36,6 +38,10 @@ private:
 	float GenerateRandomNumber(float maximum, float minimum = 0.0);
     size_t GenerateRandomNumber(size_t maximum, size_t minimum = 0);
 
+    //action methods
+    void ReturnGameObject();
+    void AddGameObject();
+
     SDL_Window * window;
     SDL_Surface *windowSurface;
 
@@ -46,7 +52,13 @@ private:
     random_device randomDevice;
     mt19937 mersenneTwisterPseudoRandomGenerator;
 
-    vector <GameObject*> gameObjectVector;
+    vector <GameObject*> gameObjectPointerVector;
+    
+    // set<Action> actionsTaken;
+    Action keyActionToTake;
+    Action lastActionToken;
+
+    int i = 10;
 };
 
 #endif

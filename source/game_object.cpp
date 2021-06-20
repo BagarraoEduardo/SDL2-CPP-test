@@ -221,19 +221,19 @@ void GameObject::LoadImageSurface()
 	
 	string path = folder + filename + extension;
 	
-	if(surface != NULL)
+	if(this->surface != NULL)
 	{
-		SDL_FreeSurface(surface);
+		SDL_FreeSurface(this->surface);
 	}
 
-	surface = SDL_LoadBMP(path.c_str());
-	if(surface == NULL)
+	this->surface = SDL_LoadBMP(path.c_str());
+	if(this->surface == NULL)
 	{
 		throw Error::SDL_LOAD_BMP_ERROR;
 	}
 
-	position->h = surface->h;
-	position->w = surface->w;
+	this->position->h = this->surface->h;
+	this->position->w = this->surface->w;
 }
 
 void GameObject::AdjustRect()
