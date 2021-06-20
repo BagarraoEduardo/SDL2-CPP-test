@@ -18,6 +18,8 @@ public:
 	GameObject* GetNext(GameObject::Color color);
 	void Return(GameObject* gameObject);
 	void Init(const int size, const int limit);
+	
+	void Freezed(bool value,  vector<GameObject *> &gameObjectsVector);
 
 private:
 	static Pooler* Instance;

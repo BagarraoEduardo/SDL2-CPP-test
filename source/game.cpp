@@ -1,5 +1,6 @@
-#include <cstdlib>
 #include <array>
+
+#include <SDL2/SDL.h>
 
 #include "../include/game.h"
 #include "../include/error.h"
@@ -10,6 +11,7 @@ using namespace std;
 Game::Game()
 {
     this->isRunning = false;
+    this->isPlaying = false;
 
     this->frameTicks = 0;
 
@@ -77,7 +79,7 @@ void Game::Init()
 
     for(size_t i = 0; i < Constants::GAME_OBJECT_POOL_SIZE; i++)
     {
-        AddGameObject();
+        AddGameObjectAction(true);
     }
 
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -127,7 +129,7 @@ void Game::HandleEvents()
                 keyActionToTake = Action::REMOVE_ALL_CREDITS;
                 break;
             case SDLK_z:
-                keyActionToTake = Action::START_GAME;
+                keyActionToTake = Action::PLAY_GAME;
                 break;
             case SDLK_x:
                 keyActionToTake = Action::STOP_GAME;
@@ -152,34 +154,38 @@ void Game::HandleLogic(float deltaTime)
     {
         switch(keyActionToTake)
         {
+            case Action::STOP_GAME:
+                StopAction();
+                break;
+            case Action::PLAY_GAME:
+                PlayAction();
+                break;
             case Action::INSERT_CREDIT:
                 break;
             case Action::REMOVE_ALL_CREDITS:
                 break;
             case Action::RETURN_GAME_OBJECT:
-                ReturnGameObject();
+                ReturnGameObjectAction();
                 break;
             case Action::ADD_GAME_OBJECT:
-                AddGameObject();
+                AddGameObjectAction(false);
                 break;
             case Action::NONE:
             default:
                 break;
         }
     }
-    
-    // while(--i != 0)
-    // {
-    //     AddGameObject();
-    // }
 
     this->lastActionToken = this->keyActionToTake;
     
-    for(size_t i = 0; i < gameObjectPointerVector.size(); i++)
+    if(this->isPlaying)
     {
-        GameObject * pointedGameObject = gameObjectPointerVector[i];
+        for (size_t i = 0; i < gameObjectPointerVector.size(); i++)
+        {
+            GameObject *pointedGameObject = gameObjectPointerVector[i];
 
-        pointedGameObject->Update(deltaTime);
+            pointedGameObject->Update(deltaTime);
+        }
     }
 }
 
@@ -187,18 +193,21 @@ void Game::HandleRendering()
 {
     SDL_FillRect(windowSurface, NULL, SDL_MapRGB(windowSurface->format, 0, 0, 0));
 
-    for(size_t i = 0; i < gameObjectPointerVector.size(); i++)
+    if(this->isPlaying)
     {
-        GameObject * gameObjectPointerToRender = gameObjectPointerVector[i];
-
-        if(gameObjectPointerToRender->IsActive())
+        for(size_t i = 0; i < gameObjectPointerVector.size(); i++)
         {
-            SDL_Surface * surfaceToRender = gameObjectPointerToRender->GetSurface();
-            
-            SDL_Rect* surfaceRect = gameObjectPointerToRender->GetPosition(); 
-            SDL_Rect parameterRect = SDL_Rect(*surfaceRect);
-            
-            SDL_BlitSurface(surfaceToRender, NULL, windowSurface, &parameterRect);
+            GameObject * gameObjectPointerToRender = gameObjectPointerVector[i];
+
+            if(gameObjectPointerToRender->IsActive())
+            {
+                SDL_Surface * surfaceToRender = gameObjectPointerToRender->GetSurface();
+                
+                SDL_Rect* surfaceRect = gameObjectPointerToRender->GetPosition(); 
+                SDL_Rect parameterRect = SDL_Rect(*surfaceRect);
+                
+                SDL_BlitSurface(surfaceToRender, NULL, windowSurface, &parameterRect);
+            }
         }
     }
     SDL_UpdateWindowSurface(window);
@@ -206,6 +215,19 @@ void Game::HandleRendering()
 
 void Game::Update()
 {
+    if(this->isPlaying)
+    {
+        int currentGameObjects = 0;
+        for(size_t i = 0; i < gameObjectPointerVector.size(); i++)
+        {
+            if(gameObjectPointerVector[i]->IsActive())
+            {
+                ++currentGameObjects;
+            }
+        }
+        int currentActiveGameObjects = this->gameObjectPointerVector.size();
+    }
+
     float deltaTime = GenerateDeltaTime();
 
     this->frameTicks = SDL_GetTicks();
@@ -299,10 +321,11 @@ size_t Game::GenerateRandomNumber(size_t maximum, size_t minimum /* = 0 */)
     return number_generated;
 }
 
-
-void Game::ReturnGameObject()
+void Game::ReturnGameObjectAction()
 {
-    if(gameObjectPointerVector.size() > 0)
+    if(this->isPlaying)
+    {
+        if(gameObjectPointerVector.size() > 0)
         {
             int chosenIndexToReturn; 
             int numberOfTries = 0;
@@ -342,39 +365,79 @@ void Game::ReturnGameObject()
                        }),
                    gameObjectPointerVector.end());
             }
-
         }
         else
         {
             SDL_Log("Currently there's no active gameobjects in the pool.");
         }
+    }
 }
 
-void Game::AddGameObject()
+void Game::AddGameObjectAction(bool isInitializing)
 {
-    if(!Pooler::GetInstance()->HasNext())
+    if(isInitializing || this->isPlaying)
     {
-        SDL_Log("The pooling system is being used to its full capacity at this moment.");
+        if (!Pooler::GetInstance()->HasNext())
+        {
+            SDL_Log("The pooling system is being used to its full capacity at this moment.");
+        }
+        else
+        {
+            GameObject *gameObjectPointerToStore = Pooler::GetInstance()->GetNext(GameObject::Color::RED);
+
+            Vector2 randomPosition = GenerateRandomPosition();
+            Vector2 randomMovement = GenerateRandomMovement();
+            GameObject::Color randomColor = GenerateRandomColor();
+
+            string x = "new position: " + to_string(randomPosition.GetX()) + "|" + to_string(randomPosition.GetY());
+
+            SDL_Log(x.c_str());
+
+            float randomSpeed = GenerateRandomNumber(Constants::GAME_OBJECT_MAX_SPEED, Constants::GAME_OBJECT_MIN_SPEED);
+
+            gameObjectPointerToStore->SetColor(randomColor);
+            gameObjectPointerToStore->SetPosition(randomPosition);
+            gameObjectPointerToStore->SetMovement(randomMovement);
+            gameObjectPointerToStore->SetSpeed(randomSpeed);
+
+            if (!gameObjectPointerToStore->IsActive())
+            {
+                gameObjectPointerToStore->SetActive(true);
+            }
+            this->gameObjectPointerVector.push_back(gameObjectPointerToStore);
+        }
+    }
+}
+
+void Game::PlayAction()
+{
+    if(!this->isPlaying)
+    {
+         Pooler::GetInstance()->Freezed(false, gameObjectPointerVector);
+         SDL_Log("The game has started.");
     }
     else
     {
-        GameObject *gameObjectPointerToStore = Pooler::GetInstance()->GetNext(GameObject::Color::RED);
-
-        Vector2 randomPosition = GenerateRandomPosition();
-        Vector2 randomMovement = GenerateRandomMovement();
-        GameObject::Color randomColor = GenerateRandomColor();
-
-        float randomSpeed = GenerateRandomNumber(Constants::GAME_OBJECT_MAX_SPEED, Constants::GAME_OBJECT_MIN_SPEED);
-
-        gameObjectPointerToStore->SetColor(randomColor);
-        gameObjectPointerToStore->SetPosition(randomPosition);
-        gameObjectPointerToStore->SetMovement(randomMovement);
-        gameObjectPointerToStore->SetSpeed(randomSpeed);
-
-        if (!gameObjectPointerToStore->IsActive())
-        {
-            gameObjectPointerToStore->SetActive(true);
-        }
-        this->gameObjectPointerVector.push_back(gameObjectPointerToStore);
+        SDL_Log("The game has already started.");
     }
+    this->isPlaying = true;
+}
+
+void Game::StopAction()
+{
+    while(gameObjectPointerVector.size() > Constants::GAME_OBJECT_POOL_SIZE)
+    {
+        ReturnGameObjectAction();
+    }
+
+    if(this->isPlaying)
+    {
+         Pooler::GetInstance()->Freezed(true, gameObjectPointerVector);
+         SDL_Log("The game stopped.");
+    }
+    else
+    {
+         SDL_Log("The game has already stopped.");
+    }
+    this->isPlaying = false;
 }

@@ -39,14 +39,17 @@ private:
     size_t GenerateRandomNumber(size_t maximum, size_t minimum = 0);
 
     //action methods
-    void ReturnGameObject();
-    void AddGameObject();
+    void ReturnGameObjectAction();
+    void AddGameObjectAction(bool isInitializing);
+    void PlayAction();
+    void StopAction();
 
     SDL_Window * window;
     SDL_Surface *windowSurface;
 
     bool isRunning;
-    
+    bool isPlaying;
+
     Uint32 frameTicks;
 
     random_device randomDevice;

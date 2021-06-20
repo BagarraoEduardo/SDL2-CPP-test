@@ -3,6 +3,7 @@
 #include "../include/constants.h"
 
 #include <string>
+#include <cmath>
 
 string colorTextArray[7] = { "LILAC", "YELLOW", "BLUE", "TURQUOISE", "RED", "ORANGE", "GREEN"};
 
@@ -115,34 +116,38 @@ GameObject::GameObject(Vector2 position, Color color, Vector2 movement, float sp
 
 void GameObject::Update(float deltaTime)
 {
-	int roundedDeltaTime = static_cast<int>(deltaTime + 0.5);
-
-	Vector2 currentPosition(position->x, position->y);
-	Vector2 sumVector = movement * speed * roundedDeltaTime;
-
-	Vector2 newPosition = currentPosition + sumVector;
-
-	this->position->x = static_cast<int>(newPosition.GetX());
-	this->position->y = static_cast<int>(newPosition.GetY());
-
-	if (newPosition.GetX() > Constants::SCREEN_WIDTH)
+	if (this->isActive)
 	{
-		this->position->x = 0;
-	}
+		int roundedDeltaTime = static_cast<int>(deltaTime + 0.5);
 
-	if	(newPosition.GetX() < 0)
-	{
-		this->position->x = Constants::SCREEN_WIDTH;
-	}
-	
-	if(newPosition.GetY() > Constants::SCREEN_HEIGHT) 
-	{
-		this->position->y = 0;
-	}
+		Vector2 currentPosition(position->x, position->y);
+		Vector2 sumVector = movement * speed * roundedDeltaTime;
 
-	if(newPosition.GetY() < 0)
-	{
-		this->position->y = Constants::SCREEN_HEIGHT;
+		Vector2 newPosition = currentPosition + sumVector;
+
+		this->position->x = static_cast<int>(newPosition.GetX());
+		this->position->y = static_cast<int>(newPosition.GetY());
+
+		//FIXME: known bug, sometimes the balls just get in the top left edge of the screen
+		if (newPosition.GetX() > Constants::SCREEN_WIDTH)
+		{
+			this->position->x = 0;
+		}
+
+		if (newPosition.GetX() < 0)
+		{
+			this->position->x = Constants::SCREEN_WIDTH;
+		}
+
+		if (newPosition.GetY() > Constants::SCREEN_HEIGHT)
+		{
+			this->position->y = 0;
+		}
+
+		if (newPosition.GetY() < 0)
+		{
+			this->position->y = Constants::SCREEN_HEIGHT;
+		}
 	}
 }
 
@@ -233,7 +238,7 @@ void GameObject::LoadImageSurface()
 	}
 
 	this->position->h = this->surface->h;
-	this->position->w = this->surface->w;
+
 }
 
 void GameObject::AdjustRect()

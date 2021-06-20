@@ -12,8 +12,8 @@ public:
     static const int SCREEN_HEIGHT = 540;
 
     //pool
-    static const int GAME_OBJECT_POOL_SIZE = 5;
-    static const int GAME_OBJECT_POOL_LIMIT = 10;
+    static const int GAME_OBJECT_POOL_SIZE = 2;
+    static const int GAME_OBJECT_POOL_LIMIT = 5;
 
     //game object
     static constexpr float GAME_OBJECT_MIN_SPEED = 1;

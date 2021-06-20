@@ -4,6 +4,7 @@
 
 #include "../include/pooler.h"
 #include "../include/game_object.h"
+#include "../include/constants.h"
 
 Pooler* Pooler::Instance;
 
@@ -147,6 +148,17 @@ GameObject Pooler::CreateGameObject()
 	Vector2 gameObjectPosition(0, 0);
 	GameObject newGameObject = GameObject(gameObjectPosition, GameObject::Color::RED);
 	return newGameObject;
+}
+
+void Pooler::Freezed(bool value, vector<GameObject *> &gameObjectsVector)
+{
+	for(GameObject * &listedGameObjectPointer : gameObjectsVector)
+	{
+		if(find(poolVector.begin(), poolVector.end(), listedGameObjectPointer) != poolVector.end())
+		{
+			listedGameObjectPointer->SetActive(!value);
+		}
+	}
 }
 
 
