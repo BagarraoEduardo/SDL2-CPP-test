@@ -30,7 +30,7 @@ private:
 	int size;
 	int limit;
 
-	vector<GameObject *> poolVector;
+	vector<GameObject*> poolVector;
 };
 
 #endif

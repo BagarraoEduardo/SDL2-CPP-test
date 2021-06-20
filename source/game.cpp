@@ -1,5 +1,12 @@
+#include <cstdlib>
+
 #include "../include/game.h"
 #include "../include/error.h"
+#include "../include/constants.h"
+
+#include<array>
+
+using namespace std;
 
 Game::Game()
 {
@@ -65,13 +72,25 @@ void Game::Quit()
 
 void Game::Init()
 {
-    Pooler::GetInstance()->Init(GAME_OBJECT_POOL_SIZE, GAME_OBJECT_POOL_LIMIT);
+    Pooler::GetInstance()->Init(Constants::GAME_OBJECT_POOL_SIZE, Constants::GAME_OBJECT_POOL_LIMIT);
 
-    for(size_t i = 0; i < GAME_OBJECT_POOL_SIZE; i++)
+    for(size_t i = 0; i < Constants::GAME_OBJECT_POOL_SIZE; i++)
     {
         if(Pooler::GetInstance()->HasNext())
         {
             GameObject * gameObjectPointerToStore = Pooler::GetInstance()->GetNext(GameObject::Color::RED);
+            
+            Vector2 randomPosition = GenerateRandomPosition();
+            Vector2 randomMovement = GenerateRandomMovement();
+            GameObject::Color randomColor = GenerateRandomColor();
+            float randomSpeed = 
+                static_cast<float>(rand() % static_cast<int>(Constants::GAME_OBJECT_MAX_SPEED - Constants::GAME_OBJECT_MIN_SPEED) + static_cast<int>(Constants::GAME_OBJECT_MIN_SPEED)); 
+
+            gameObjectPointerToStore->SetColor(randomColor);
+            gameObjectPointerToStore->SetPosition(randomPosition);
+            gameObjectPointerToStore->SetMovement(randomMovement);
+            gameObjectPointerToStore->SetSpeed(randomSpeed);
+
             if(!gameObjectPointerToStore->IsActive())
             {
                 gameObjectPointerToStore->SetActive(true);
@@ -93,8 +112,8 @@ void Game::Init()
         "A Lot of Balls!",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        SCREEN_WIDTH,
-        SCREEN_HEIGHT,
+        Constants::SCREEN_WIDTH,
+        Constants::SCREEN_HEIGHT,
         SDL_WINDOW_OPENGL);
 
     if (window == NULL)
@@ -127,7 +146,12 @@ void Game::HandleEvents()
 
 void Game::HandleLogic()
 {
+    for(size_t i = 0; i < gameObjectVector.size(); i++)
+    {
+        GameObject * pointedGameObject = gameObjectVector[i];
 
+        pointedGameObject->Update(1); //TODO: mudar o deltatime
+    }
 }
 
 void Game::HandleRendering()
@@ -149,4 +173,43 @@ void Game::HandleRendering()
         }
     }
     SDL_UpdateWindowSurface(window);
+}
+
+Vector2 Game::GenerateRandomPosition()
+{
+    float minWidth, maxWidth, minHeight, maxHeight;
+
+    minWidth = maxHeight = 0 + Constants::GAME_OBJECT_GENERATION_MARGIN;
+    maxWidth = minHeight = Constants::SCREEN_WIDTH - Constants::GAME_OBJECT_GENERATION_MARGIN;
+
+    // float randomWidth = GetRandomNumberBetweenTwoNumbers(minWidth, maxWidth);
+    // float randomHeight = GetRandomNumberBetweenTwoNumbers(minHeight, maxHeight);
+
+    float randomWidth = static_cast<float>(rand() % static_cast<int>(maxWidth));
+    float randomHeight = static_cast<float>(rand() % static_cast<int>(maxHeight));;
+
+    return Vector2(randomWidth, randomHeight);
+}
+
+Vector2 Game::GenerateRandomMovement()
+{
+    const size_t length = 4;
+    array<Vector2, length> possibleMovementsArray = 
+    {{
+        Vector2(1,0),
+        Vector2(-1,0),
+        Vector2(0,1),
+        Vector2(0,-1)
+    }};
+
+    int chosenIndex = rand() % possibleMovementsArray.size();
+
+    return possibleMovementsArray[chosenIndex];
+}
+
+GameObject::Color Game::GenerateRandomColor()
+{
+    GameObject::Color color = static_cast<GameObject::Color>(rand() % GameObject::Color::GREEN);
+
+    return color;
 }

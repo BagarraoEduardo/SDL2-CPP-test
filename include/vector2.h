@@ -26,6 +26,16 @@ public:
 	Vector2 operator / (Vector2 const& other);
 
 	Vector2 operator * (Vector2 const& other);
+	
+	Vector2 operator *= (Vector2 const& other);
+
+	friend Vector2 operator * (const float multiplier, Vector2 const& vector);
+
+	friend Vector2 operator *= (const float multiplier, Vector2 const& vector);
+
+	friend Vector2 operator * (Vector2 const& vector, const float multiplier);
+	
+	friend Vector2 operator *= (Vector2 const& vector, const float multiplier);
 
 	friend ostream& operator << (ostream& outStream, Vector2 const& vector);
 

@@ -1,5 +1,6 @@
 #include "../include/game_object.h"
 #include "../include/error.h"
+#include "../include/constants.h"
 
 #include <string>
 
@@ -32,6 +33,7 @@ GameObject::GameObject()
 	this->surface = NULL;
 
 	LoadImageSurface();
+	AdjustRect();
 }
 
 GameObject::GameObject(const GameObject& other) 
@@ -50,6 +52,7 @@ GameObject::GameObject(const GameObject& other)
 	this->surface = NULL;
 
 	LoadImageSurface();
+	AdjustRect();
 }
 
 GameObject::GameObject(Vector2 position, Color color)
@@ -69,6 +72,7 @@ GameObject::GameObject(Vector2 position, Color color)
 	this->surface = NULL;
 
 	LoadImageSurface();
+	AdjustRect();
 }
 
 GameObject::GameObject(Vector2 position, Color color, Vector2 movement)
@@ -87,6 +91,7 @@ GameObject::GameObject(Vector2 position, Color color, Vector2 movement)
 	this->surface = NULL;
 
 	LoadImageSurface();
+	AdjustRect();
 }
 
 GameObject::GameObject(Vector2 position, Color color, Vector2 movement, float speed)
@@ -105,6 +110,38 @@ GameObject::GameObject(Vector2 position, Color color, Vector2 movement, float sp
 	this->surface = NULL;
 
 	LoadImageSurface();
+	AdjustRect();
+}
+
+void GameObject::Update(float deltaTime)
+{
+	Vector2 currentPosition(position->x, position->y);
+	Vector2 sumVector = movement * speed * deltaTime;
+
+	Vector2 newPosition = currentPosition + sumVector;
+
+	this->position->x = newPosition.GetX();
+	this->position->y = newPosition.GetY();
+
+	if (newPosition.GetX() > Constants::SCREEN_WIDTH)
+	{
+		this->position->x = 0;
+	}
+
+	if	(newPosition.GetX() < 0)
+	{
+		this->position->x = Constants::SCREEN_WIDTH;
+	}
+	
+	if(newPosition.GetY() > Constants::SCREEN_HEIGHT) 
+	{
+		this->position->y = 0;
+	}
+
+	if(newPosition.GetY() < 0)
+	{
+		this->position->y = Constants::SCREEN_HEIGHT;
+	}
 }
 
 float GameObject::GetSpeed() 
@@ -176,7 +213,6 @@ ostream& operator << (ostream& outStream, GameObject const& gameObject)
 
 void GameObject::LoadImageSurface()
 {
-	
 	string folder = "./../resources/sprites/";
 	string filename = colorTextArray[color];
 	string extension = ".bmp";
@@ -196,6 +232,12 @@ void GameObject::LoadImageSurface()
 
 	position->h = surface->h;
 	position->w = surface->w;
+}
+
+void GameObject::AdjustRect()
+{
+	this->position->x -= (this->position->w/2);
+	this->position->y -= (this->position->h/2);
 }
 
 

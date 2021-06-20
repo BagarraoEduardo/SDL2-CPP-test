@@ -1,6 +1,9 @@
-#include "../include/pooler.h"
 
 #include <array>
+#include <algorithm>
+
+#include "../include/pooler.h"
+#include "../include/game_object.h"
 
 Pooler* Pooler::Instance;
 

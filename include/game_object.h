@@ -1,8 +1,9 @@
 #ifndef GameObject_HEADER
 #define GameObject_HEADER
 
-#include "vector2.h"
 #include "SDL2/SDL.h"
+
+#include "vector2.h"
 
 class GameObject
 {
@@ -17,6 +18,8 @@ public:
 	GameObject(Vector2 position, Color color);
 	GameObject(Vector2 position, Color color, Vector2 movement);
 	GameObject(Vector2 position, Color color, Vector2 movement, float speed);
+
+	void Update(float deltaTime);
 
 	float GetSpeed();
 	void SetSpeed(float speed);
@@ -53,6 +56,7 @@ private:
 	SDL_Surface *surface;
 
 	void LoadImageSurface();
+	void AdjustRect();
 };
 
 #endif

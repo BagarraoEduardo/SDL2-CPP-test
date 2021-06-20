@@ -1,4 +1,5 @@
 #include "./../include/vector2.h"
+#include "./../include/constants.h"
 
 Vector2::Vector2()
 {
@@ -40,7 +41,7 @@ void Vector2::SetY(float y)
 
 Vector2 Vector2::operator + (Vector2 const& other)
 {
-	Vector2 sum;
+	Vector2 sum(x,y);
 	sum.x += other.x;
 	sum.y += other.y;
 
@@ -49,7 +50,7 @@ Vector2 Vector2::operator + (Vector2 const& other)
 
 Vector2 Vector2::operator - (Vector2 const& other)
 {
-	Vector2 subtract;
+	Vector2 subtract(x,y);
 	subtract.x -= other.x;
 	subtract.y -= other.y;
 
@@ -58,7 +59,7 @@ Vector2 Vector2::operator - (Vector2 const& other)
 
 Vector2 Vector2::operator / (Vector2 const& other)
 {
-	Vector2 divide;
+	Vector2 divide(x,y);
 	divide.x /= other.x;
 	divide.y /= other.y;
 
@@ -67,11 +68,41 @@ Vector2 Vector2::operator / (Vector2 const& other)
 
 Vector2 Vector2::operator * (Vector2 const& other)
 {
-	Vector2 multiply;
+	Vector2 multiply(x,y);
 	multiply.x *= other.x;
 	multiply.y *= other.y;
 
 	return multiply;
+}
+
+
+Vector2 Vector2::operator *= (Vector2 const& other)
+{
+	Vector2 multiply(x,y);
+	multiply.x *= other.x;
+	multiply.y *= other.y;
+
+	return multiply;
+}
+
+Vector2 operator * (Vector2 const& vector, const float multiplier)
+{
+	return Vector2(vector.x * multiplier, vector.y * multiplier);
+}
+
+Vector2 operator *= (Vector2 const& vector, const float multiplier)
+{
+	return Vector2(vector.x * multiplier, vector.y * multiplier);
+}
+
+Vector2 operator * (const float multiplier, Vector2 const& vector)
+{
+	return Vector2(vector.x * multiplier, vector.y * multiplier);
+}
+
+Vector2 operator *= (const float multiplier, Vector2 const& vector)
+{
+	return Vector2(vector.x * multiplier, vector.y * multiplier);
 }
 
 ostream& operator << (ostream& outStream, Vector2 const& vector)
