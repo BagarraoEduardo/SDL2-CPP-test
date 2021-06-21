@@ -19,6 +19,13 @@ public:
     inline static const string TITLE_PLAYING = "Playing";
     inline static const string TITLE_GAME_OBJECTS_QUANTITY = "Active GameObjects: ";
 
+    //messages
+    inline static const string MESSAGE_OUT_OF_CREDITS = "Insert credits.";
+    
+    //out of credits message properties
+    static const int MESSAGE_OUT_OF_CREDITS_TIME = 3;
+    static const int MESSAGE_OUT_OF_CREDITS_DISABLED = -1;
+
     //text position
     static constexpr float TITLE_START_RELATIVE_X = 0.5;
     static constexpr float TITLE_START_RELATIVE_Y = 0.5;

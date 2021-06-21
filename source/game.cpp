@@ -17,10 +17,20 @@ Game::Game()
     this->credits = Constants::INITIAL_CREDITS_NUMBER;
 
     this->frameTicks = 0;
+    this->frameEndTicks = 0;
 
     this->window = nullptr;
     this->windowSurface = nullptr;
+
+    this->creditsTitleFontSurface = nullptr;
+    this->gameStateFontSurface = nullptr;
+    this->gameObjectsQuantityFontSurface = nullptr;
+    this->outOfCreditsFontSurface = nullptr;
+
     this->titleFont = nullptr;
+    this->messageFont = nullptr;
+
+    this->outOfCreditsMessageTime = Constants::MESSAGE_OUT_OF_CREDITS_DISABLED;
 
     this->keyActionToTake = Action::NONE;
     this->lastActionToken = Action::NONE;
@@ -75,6 +85,11 @@ Game::~Game()
         TTF_CloseFont(titleFont);
     }
 
+    if(messageFont != NULL)
+    {
+        TTF_CloseFont(messageFont);
+    }
+
     if(windowSurface != NULL)
     {
         SDL_FreeSurface(windowSurface);
@@ -93,6 +108,11 @@ Game::~Game()
     if(gameObjectsQuantityFontSurface != NULL)
     {
         SDL_FreeSurface(gameObjectsQuantityFontSurface);
+    }
+
+    if(outOfCreditsFontSurface != NULL)
+    {
+        SDL_FreeSurface(outOfCreditsFontSurface);
     }
 
     if(window != NULL)
@@ -147,6 +167,12 @@ void Game::Init()
         throw Error::SDL_LOAD_FONT_ERROR;
     }
 
+    messageFont = TTF_OpenFont("./../resources/fonts/abyssinca.ttf", Constants::MESSAGE_FONT_SIZE);
+    if(messageFont == NULL)
+    {
+        throw Error::SDL_LOAD_FONT_ERROR;
+    }
+
     creditsTitleFontSurface = SDL_GetWindowSurface(window);
     if(creditsTitleFontSurface == NULL)
     {
@@ -155,8 +181,6 @@ void Game::Init()
 
     this->creditsTitleFontRect.x = (Constants::TITLE_START_RELATIVE_X * Constants::SCREEN_WIDTH) - ( creditsTitleFontSurface->w / 2);
     this->creditsTitleFontRect.y = (Constants::TITLE_START_RELATIVE_Y * Constants::SCREEN_HEIGHT) - ( creditsTitleFontSurface->h / 2);
-    this->creditsTitleFontRect.w = creditsTitleFontSurface->w;
-    this->creditsTitleFontRect.h = creditsTitleFontSurface->h;
 
     gameStateFontSurface = SDL_GetWindowSurface(window);
     if(gameStateFontSurface == NULL)
@@ -166,8 +190,6 @@ void Game::Init()
 
     this->gameStateFontRect.x = (Constants::TITLE_START_RELATIVE_X * Constants::SCREEN_WIDTH) - ( gameStateFontSurface->w / 2);
     this->gameStateFontRect.y = creditsTitleFontRect.y + Constants::TITLE_START_MARGIN;
-    this->gameStateFontRect.w = gameStateFontSurface->w;
-    this->gameStateFontRect.h = gameStateFontSurface->h;
 
     gameObjectsQuantityFontSurface = SDL_GetWindowSurface(window);
     if(gameObjectsQuantityFontSurface == NULL)
@@ -177,9 +199,24 @@ void Game::Init()
 
     this->gameObjectQuantityFontRect.x = (Constants::TITLE_START_RELATIVE_X * Constants::SCREEN_WIDTH) - ( gameObjectsQuantityFontSurface->w / 2);
     this->gameObjectQuantityFontRect.y = gameStateFontRect.y + Constants::TITLE_START_MARGIN;
-    this->gameObjectQuantityFontRect.w = gameObjectsQuantityFontSurface->w;
-    this->gameObjectQuantityFontRect.h = gameObjectsQuantityFontSurface->h;
 
+
+    outOfCreditsFontSurface = SDL_GetWindowSurface(window);
+    if(outOfCreditsFontSurface == NULL)
+    {
+        throw Error::SDL_WINDOW_SURFACE_ERROR;
+    }
+
+
+    int fontWidth = 0, fontHeight = 0;
+
+    TTF_SizeText(messageFont, Constants::MESSAGE_OUT_OF_CREDITS.c_str(), &fontWidth, &fontHeight);
+
+    this->outOfCreditsFontRect.w = fontWidth;
+    this->outOfCreditsFontRect.h = fontHeight;
+
+    this->outOfCreditsFontRect.x = (Constants::SCREEN_WIDTH / 2) - (outOfCreditsFontRect.w / 2);
+    this->outOfCreditsFontRect.y = (Constants::SCREEN_HEIGHT / 2) - (outOfCreditsFontRect.h / 2);
 }
 
 void Game::HandleEvents()
@@ -257,11 +294,24 @@ void Game::HandleLogic(float deltaTime)
     
     if(this->isPlaying)
     {
+        outOfCreditsMessageTime = Constants::MESSAGE_OUT_OF_CREDITS_DISABLED;
+
         for (size_t i = 0; i < gameObjectPointerVector.size(); i++)
         {
             GameObject *pointedGameObject = gameObjectPointerVector[i];
 
             pointedGameObject->Update(deltaTime);
+        }
+    }
+    else
+    {
+        if(outOfCreditsMessageTime > 0)
+        {
+            float timeToSubtract = ((SDL_GetTicks() - frameEndTicks) / 1000.0);
+
+            SDL_Log("%s", to_string(timeToSubtract).c_str());
+
+            this->outOfCreditsMessageTime -= timeToSubtract;
         }
     }
 }
@@ -274,6 +324,8 @@ void Game::HandleRendering()
 
     if(this->isPlaying)
     {
+        int activeGameObjectsNumber = 0;
+
         for(size_t i = 0; i < gameObjectPointerVector.size(); i++)
         {
             GameObject * gameObjectPointerToRender = gameObjectPointerVector[i];
@@ -286,7 +338,21 @@ void Game::HandleRendering()
                 SDL_Rect parameterRect = SDL_Rect(*surfaceRect);
                 
                 SDL_BlitSurface(surfaceToRender, NULL, windowSurface, &parameterRect);
+
+                ++activeGameObjectsNumber;
             }
+        }
+
+        string gameObjectQuantityMessage = Constants::TITLE_GAME_OBJECTS_QUANTITY + to_string(activeGameObjectsNumber);
+        gameObjectsQuantityFontSurface = TTF_RenderText_Solid(titleFont, gameObjectQuantityMessage.c_str() , white);
+        SDL_BlitSurface(gameObjectsQuantityFontSurface, NULL, windowSurface, &gameObjectQuantityFontRect);
+    }
+    else
+    {
+        if (outOfCreditsMessageTime > 0)
+        {
+            outOfCreditsFontSurface = TTF_RenderText_Solid(messageFont, Constants::MESSAGE_OUT_OF_CREDITS.c_str(), white);
+            SDL_BlitSurface(outOfCreditsFontSurface, NULL, windowSurface, &outOfCreditsFontRect);
         }
     }
 
@@ -299,31 +365,11 @@ void Game::HandleRendering()
     SDL_BlitSurface(creditsTitleFontSurface, NULL, windowSurface, &creditsTitleFontRect);
     SDL_BlitSurface(gameStateFontSurface, NULL, windowSurface, &gameStateFontRect);
 
-    if(isPlaying)
-    {
-        string gameObjectQuantityMessage = Constants::TITLE_GAME_OBJECTS_QUANTITY + to_string(gameObjectPointerVector.size());
-        gameObjectsQuantityFontSurface = TTF_RenderText_Solid(titleFont, gameObjectQuantityMessage.c_str() , white);
-        SDL_BlitSurface(gameObjectsQuantityFontSurface, NULL, windowSurface, &gameObjectQuantityFontRect);
-    }
-
     SDL_UpdateWindowSurface(window);
 }
 
 void Game::Update()
 {
-    if(this->isPlaying)
-    {
-        int currentGameObjects = 0;
-        for(size_t i = 0; i < gameObjectPointerVector.size(); i++)
-        {
-            if(gameObjectPointerVector[i]->IsActive())
-            {
-                ++currentGameObjects;
-            }
-        }
-        int currentActiveGameObjects = this->gameObjectPointerVector.size();
-    }
-
     float deltaTime = GenerateDeltaTime();
 
     this->frameTicks = SDL_GetTicks();
@@ -331,6 +377,8 @@ void Game::Update()
     this->HandleEvents();
     this->HandleLogic(deltaTime);
     this->HandleRendering();
+
+    this->frameEndTicks = SDL_GetTicks();
 }
 
 float Game::GenerateDeltaTime()
@@ -522,6 +570,8 @@ void Game::PlayAction()
         else
         {
             SDL_Log("You're ran out of credits. Please insert more if you want to play.");
+        
+            outOfCreditsMessageTime = Constants::MESSAGE_OUT_OF_CREDITS_TIME;
         }
     }
 }

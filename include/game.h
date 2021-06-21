@@ -52,6 +52,7 @@ private:
     SDL_Surface *windowSurface;
 
     TTF_Font* titleFont;
+    TTF_Font* messageFont;
 
     SDL_Surface *creditsTitleFontSurface;
     SDL_Rect creditsTitleFontRect;
@@ -62,7 +63,13 @@ private:
     SDL_Surface *gameObjectsQuantityFontSurface;
     SDL_Rect gameObjectQuantityFontRect;
 
+    SDL_Surface *outOfCreditsFontSurface;
+    SDL_Rect outOfCreditsFontRect;
+
+    float outOfCreditsMessageTime;
+
     Uint32 frameTicks;
+    Uint32 frameEndTicks;
 
     random_device randomDevice;
     mt19937 mersenneTwisterPseudoRandomGenerator;
@@ -75,8 +82,6 @@ private:
     
     Action keyActionToTake;
     Action lastActionToken;
-
-    int i = 10;
 };
 
 #endif
