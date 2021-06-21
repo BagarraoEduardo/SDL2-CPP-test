@@ -1,6 +1,8 @@
 #include <array>
+#include <algorithm>
 
-#include <SDL2/SDL.h>
+// #include <SDL2/SDL.h>
+// #include <SDL2/SDL_ttf.h>
 
 #include "../include/game.h"
 #include "../include/error.h"
@@ -12,12 +14,13 @@ Game::Game()
 {
     this->isRunning = false;
     this->isPlaying = false;
-    this->credits = 0;
+    this->credits = Constants::INITIAL_CREDITS_NUMBER;
 
     this->frameTicks = 0;
 
     this->window = nullptr;
     this->windowSurface = nullptr;
+    this->creditsTitleFont = nullptr;
 
     this->keyActionToTake = Action::NONE;
     this->lastActionToken = Action::NONE;
@@ -51,7 +54,13 @@ void Game::Start()
                 SDL_Log("Could not create window surface: %s\n", SDL_GetError());
                 break;
             case Error::SDL_LOAD_BMP_ERROR: 
-                SDL_Log("Could not create load .bmp image: %s\n", SDL_GetError());
+                SDL_Log("Could not load .bmp image: %s\n", SDL_GetError());
+                break;
+            case Error::SDL_INIT_TTF_ERROR:
+                SDL_Log("Could not load .ttf library: %s\n", SDL_GetError());
+                break;
+            case Error::SDL_LOAD_FONT_ERROR:
+                SDL_Log("Could not load .ttf font: %s\n", SDL_GetError());
                 break;
             default:
                 cout << "Generic Error Appeared" << endl;
@@ -59,11 +68,21 @@ void Game::Start()
     }
 }
 
-void Game::Quit()
+Game::~Game()
 {
+    if(creditsTitleFont != NULL)
+    {
+        TTF_CloseFont(creditsTitleFont);
+    }
+
     if(windowSurface != NULL)
     {
         SDL_FreeSurface(windowSurface);
+    }
+
+    if(creditsTitleFontSurface != NULL)
+    {
+        SDL_FreeSurface(creditsTitleFontSurface);
     }
 
     if(window != NULL)
@@ -106,6 +125,28 @@ void Game::Init()
     {
         throw Error::SDL_WINDOW_SURFACE_ERROR;
     }
+
+    if(TTF_Init())
+    {
+        throw Error::SDL_INIT_TTF_ERROR;
+    }
+
+    creditsTitleFont = TTF_OpenFont("./../resources/fonts/abyssinca.ttf", Constants::TITLE_FONT_SIZE);
+    if(creditsTitleFont == NULL)
+    {
+        throw Error::SDL_LOAD_FONT_ERROR;
+    }
+
+    creditsTitleFontSurface = SDL_GetWindowSurface(window);
+    if(creditsTitleFontSurface == NULL)
+    {
+        throw Error::SDL_WINDOW_SURFACE_ERROR;
+    }
+
+    this->creditsTitleFontRect.x = (Constants::TITLE_START_RELATIVE_X * Constants::SCREEN_WIDTH) - ( creditsTitleFontSurface->w / 2);
+    this->creditsTitleFontRect.y = (Constants::TITLE_START_RELATIVE_Y * Constants::SCREEN_HEIGHT) - ( creditsTitleFontSurface->h / 2);
+    this->creditsTitleFontRect.w = creditsTitleFontSurface->w;
+    this->creditsTitleFontRect.h = creditsTitleFontSurface->h;
 }
 
 void Game::HandleEvents()
@@ -194,6 +235,8 @@ void Game::HandleLogic(float deltaTime)
 
 void Game::HandleRendering()
 {
+    SDL_Color white = { 255, 255, 255 };
+
     SDL_FillRect(windowSurface, NULL, SDL_MapRGB(windowSurface->format, 0, 0, 0));
 
     if(this->isPlaying)
@@ -213,6 +256,13 @@ void Game::HandleRendering()
             }
         }
     }
+    string creditsTitleMessage = Constants::TITLE_CREDITS + to_string(credits);
+
+    creditsTitleFontSurface = TTF_RenderText_Solid(creditsTitleFont, creditsTitleMessage.c_str() , white);
+
+    // SDL_Rect creditParameterRect = SDL_Rect(*creditsTitleFontRect);
+    SDL_BlitSurface(creditsTitleFontSurface, NULL, windowSurface, &creditsTitleFontRect);
+
     SDL_UpdateWindowSurface(window);
 }
 
@@ -464,6 +514,6 @@ void Game::InsertCreditAction()
 void Game::RemoveAllCreditsAction()
 {
     this->credits = 0;
-    
+
     SDL_Log("All the credits were removed. Please don't forget to grab them all.");
 }

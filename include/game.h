@@ -5,20 +5,23 @@
 #include<random>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "pooler.h"
 #include "action.h"
 #include "game_object.h"
 
+
 class Game
 {
 
 public:
+    ~Game();
     Game();
     void Start();
-    void Quit();
 
 private:
+    
     void Init();
 
     void HandleEvents();
@@ -47,6 +50,11 @@ private:
 
     SDL_Window * window;
     SDL_Surface *windowSurface;
+
+    SDL_Surface *creditsTitleFontSurface;
+    SDL_Rect creditsTitleFontRect;
+    TTF_Font* creditsTitleFont;
+
 
     Uint32 frameTicks;
 

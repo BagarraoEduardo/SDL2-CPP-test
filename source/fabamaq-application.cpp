@@ -8,7 +8,5 @@ int main()
 
 	game.Start();
 	
-	game.Quit();
-	
 	return 0;
 }
