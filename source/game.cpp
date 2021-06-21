@@ -1,9 +1,6 @@
 #include <array>
 #include <algorithm>
 
-// #include <SDL2/SDL.h>
-// #include <SDL2/SDL_ttf.h>
-
 #include "../include/game.h"
 #include "../include/error.h"
 #include "../include/constants.h"
