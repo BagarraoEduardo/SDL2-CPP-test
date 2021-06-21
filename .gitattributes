@@ -2,3 +2,6 @@
 *.bmp lfs
 
 *.ttf filter=lfs diff=lfs merge=lfs -text
+
+*.aseprite lfs
+*.flp lfs

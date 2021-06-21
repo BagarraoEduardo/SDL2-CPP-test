@@ -35,8 +35,8 @@ public:
     const string MESSAGE_NO_CREDITS = "No Credits available";
 
     //screen
-    static const int SCREEN_WIDTH = 960;
-    static const int SCREEN_HEIGHT = 540;
+    static const int SCREEN_WIDTH = 1000;
+    static const int SCREEN_HEIGHT = 1000;
 
     //pool
     static const int GAME_OBJECT_POOL_SIZE = 20;
