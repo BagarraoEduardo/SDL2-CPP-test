@@ -10,18 +10,19 @@ public:
     static const int INITIAL_CREDITS_NUMBER = 3;
 
     //font
-    static const int TITLE_FONT_SIZE = 30;
-    static const int MESSAGE_FONT_SIZE = 20;
+    static const int TITLE_FONT_SIZE = 24;
+    static const int MESSAGE_FONT_SIZE = 18;
 
     //titles
     inline static const string TITLE_CREDITS = "Credits: ";
-    inline static const string TITLE_STOPPED = "[ Stopped ]";
-    inline static const string TITLE_PLAYING = "[ Playing ]";
+    inline static const string TITLE_STOPPED = "Stopped";
+    inline static const string TITLE_PLAYING = "Playing";
+    inline static const string TITLE_GAME_OBJECTS_QUANTITY = "Active GameObjects: ";
 
     //text position
     static constexpr float TITLE_START_RELATIVE_X = 0.5;
     static constexpr float TITLE_START_RELATIVE_Y = 0.5;
-    static constexpr float TITLE_START_MARGIN = 100;
+    static constexpr float TITLE_START_MARGIN = 25;
 
     //messages
     const string MESSAGE_NO_CREDITS = "No Credits available";
@@ -31,8 +32,8 @@ public:
     static const int SCREEN_HEIGHT = 540;
 
     //pool
-    static const int GAME_OBJECT_POOL_SIZE = 2;
-    static const int GAME_OBJECT_POOL_LIMIT = 5;
+    static const int GAME_OBJECT_POOL_SIZE = 20;
+    static const int GAME_OBJECT_POOL_LIMIT = 1000;
 
     //game object
     static constexpr float GAME_OBJECT_MIN_SPEED = 1;

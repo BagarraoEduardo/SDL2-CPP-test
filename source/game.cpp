@@ -20,7 +20,7 @@ Game::Game()
 
     this->window = nullptr;
     this->windowSurface = nullptr;
-    this->creditsTitleFont = nullptr;
+    this->titleFont = nullptr;
 
     this->keyActionToTake = Action::NONE;
     this->lastActionToken = Action::NONE;
@@ -70,9 +70,9 @@ void Game::Start()
 
 Game::~Game()
 {
-    if(creditsTitleFont != NULL)
+    if(titleFont != NULL)
     {
-        TTF_CloseFont(creditsTitleFont);
+        TTF_CloseFont(titleFont);
     }
 
     if(windowSurface != NULL)
@@ -83,6 +83,16 @@ Game::~Game()
     if(creditsTitleFontSurface != NULL)
     {
         SDL_FreeSurface(creditsTitleFontSurface);
+    }
+
+    if(gameStateFontSurface != NULL)
+    {
+        SDL_FreeSurface(gameStateFontSurface);
+    }
+
+    if(gameObjectsQuantityFontSurface != NULL)
+    {
+        SDL_FreeSurface(gameObjectsQuantityFontSurface);
     }
 
     if(window != NULL)
@@ -131,8 +141,8 @@ void Game::Init()
         throw Error::SDL_INIT_TTF_ERROR;
     }
 
-    creditsTitleFont = TTF_OpenFont("./../resources/fonts/abyssinca.ttf", Constants::TITLE_FONT_SIZE);
-    if(creditsTitleFont == NULL)
+    titleFont = TTF_OpenFont("./../resources/fonts/abyssinca.ttf", Constants::TITLE_FONT_SIZE);
+    if(titleFont == NULL)
     {
         throw Error::SDL_LOAD_FONT_ERROR;
     }
@@ -147,6 +157,29 @@ void Game::Init()
     this->creditsTitleFontRect.y = (Constants::TITLE_START_RELATIVE_Y * Constants::SCREEN_HEIGHT) - ( creditsTitleFontSurface->h / 2);
     this->creditsTitleFontRect.w = creditsTitleFontSurface->w;
     this->creditsTitleFontRect.h = creditsTitleFontSurface->h;
+
+    gameStateFontSurface = SDL_GetWindowSurface(window);
+    if(gameStateFontSurface == NULL)
+    {
+        throw Error::SDL_WINDOW_SURFACE_ERROR;
+    }
+
+    this->gameStateFontRect.x = (Constants::TITLE_START_RELATIVE_X * Constants::SCREEN_WIDTH) - ( gameStateFontSurface->w / 2);
+    this->gameStateFontRect.y = creditsTitleFontRect.y + Constants::TITLE_START_MARGIN;
+    this->gameStateFontRect.w = gameStateFontSurface->w;
+    this->gameStateFontRect.h = gameStateFontSurface->h;
+
+    gameObjectsQuantityFontSurface = SDL_GetWindowSurface(window);
+    if(gameObjectsQuantityFontSurface == NULL)
+    {
+        throw Error::SDL_WINDOW_SURFACE_ERROR;
+    }
+
+    this->gameObjectQuantityFontRect.x = (Constants::TITLE_START_RELATIVE_X * Constants::SCREEN_WIDTH) - ( gameObjectsQuantityFontSurface->w / 2);
+    this->gameObjectQuantityFontRect.y = gameStateFontRect.y + Constants::TITLE_START_MARGIN;
+    this->gameObjectQuantityFontRect.w = gameObjectsQuantityFontSurface->w;
+    this->gameObjectQuantityFontRect.h = gameObjectsQuantityFontSurface->h;
+
 }
 
 void Game::HandleEvents()
@@ -256,12 +289,22 @@ void Game::HandleRendering()
             }
         }
     }
+
     string creditsTitleMessage = Constants::TITLE_CREDITS + to_string(credits);
-
-    creditsTitleFontSurface = TTF_RenderText_Solid(creditsTitleFont, creditsTitleMessage.c_str() , white);
-
-    // SDL_Rect creditParameterRect = SDL_Rect(*creditsTitleFontRect);
+    string gameStateMessage = (isPlaying) ? Constants::TITLE_PLAYING : Constants::TITLE_STOPPED;
+    
+    creditsTitleFontSurface = TTF_RenderText_Solid(titleFont, creditsTitleMessage.c_str() , white);
+    gameStateFontSurface = TTF_RenderText_Solid(titleFont, gameStateMessage.c_str() , white);
+    
     SDL_BlitSurface(creditsTitleFontSurface, NULL, windowSurface, &creditsTitleFontRect);
+    SDL_BlitSurface(gameStateFontSurface, NULL, windowSurface, &gameStateFontRect);
+
+    if(isPlaying)
+    {
+        string gameObjectQuantityMessage = Constants::TITLE_GAME_OBJECTS_QUANTITY + to_string(gameObjectPointerVector.size());
+        gameObjectsQuantityFontSurface = TTF_RenderText_Solid(titleFont, gameObjectQuantityMessage.c_str() , white);
+        SDL_BlitSurface(gameObjectsQuantityFontSurface, NULL, windowSurface, &gameObjectQuantityFontRect);
+    }
 
     SDL_UpdateWindowSurface(window);
 }

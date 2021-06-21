@@ -51,10 +51,16 @@ private:
     SDL_Window * window;
     SDL_Surface *windowSurface;
 
+    TTF_Font* titleFont;
+
     SDL_Surface *creditsTitleFontSurface;
     SDL_Rect creditsTitleFontRect;
-    TTF_Font* creditsTitleFont;
 
+    SDL_Surface *gameStateFontSurface;
+    SDL_Rect gameStateFontRect;
+
+    SDL_Surface *gameObjectsQuantityFontSurface;
+    SDL_Rect gameObjectQuantityFontRect;
 
     Uint32 frameTicks;
 
