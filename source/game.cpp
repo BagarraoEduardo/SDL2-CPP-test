@@ -1,11 +1,18 @@
 #include <array>
 #include <algorithm>
+#include <string>
+#include <random>
+#include <filesystem>
+
 
 #include "../include/game.h"
 #include "../include/error.h"
 #include "../include/constants.h"
 
 using namespace std;
+
+using std::string;
+using std::filesystem::current_path;
 
 Game::Game()
 {
@@ -122,16 +129,18 @@ Game::~Game()
 
 void Game::Init()
 {
+    //needs to be before because in the pooler  
+    //there are called SDL_Logs
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+    {
+        throw Error::SDL_INIT_ERROR;
+    }
+
     Pooler::GetInstance()->Init(Constants::GAME_OBJECT_POOL_SIZE, Constants::GAME_OBJECT_POOL_LIMIT);
 
     for(size_t i = 0; i < Constants::GAME_OBJECT_POOL_SIZE; i++)
     {
         AddGameObjectAction(true);
-    }
-
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-    {
-        throw Error::SDL_INIT_ERROR;
     }
 
     window = SDL_CreateWindow(
@@ -158,13 +167,21 @@ void Game::Init()
         throw Error::SDL_INIT_TTF_ERROR;
     }
 
-    titleFont = TTF_OpenFont("./../resources/fonts/abyssinca.ttf", Constants::TITLE_FONT_SIZE);
+    string folder = current_path().string();
+
+    #ifdef WIN32
+	    folder = +".\\resources\\fonts\\";
+    #else
+	    folder = +"/../resources/sprites/";
+    #endif
+
+    titleFont = TTF_OpenFont((folder + "abyssinca.ttf").c_str(), Constants::TITLE_FONT_SIZE);
     if(titleFont == NULL)
     {
         throw Error::SDL_LOAD_FONT_ERROR;
     }
 
-    messageFont = TTF_OpenFont("./../resources/fonts/abyssinca.ttf", Constants::MESSAGE_FONT_SIZE);
+    messageFont = TTF_OpenFont((folder + "abyssinca.ttf").c_str(), Constants::MESSAGE_FONT_SIZE);
     if(messageFont == NULL)
     {
         throw Error::SDL_LOAD_FONT_ERROR;
@@ -305,7 +322,7 @@ void Game::HandleLogic(float deltaTime)
         if(outOfCreditsMessageTime > 0)
         {
             float timeToSubtract = ((SDL_GetTicks() - frameEndTicks) / 1000.0);
-
+                
             SDL_Log("%s", to_string(timeToSubtract).c_str());
 
             this->outOfCreditsMessageTime -= timeToSubtract;
@@ -405,7 +422,7 @@ Vector2 Game::GenerateRandomPosition()
     minHeight = Constants::SCREEN_HEIGHT - Constants::GAME_OBJECT_GENERATION_MARGIN;
 
     float randomWidth = GenerateRandomNumber(minWidth, maxWidth);
-    float randomHeight = GenerateRandomNumber(minHeight, maxHeight);
+    float randomHeight = GenerateRandomNumber(maxHeight, minHeight);
 
     return Vector2(randomWidth, randomHeight);
 }
@@ -421,7 +438,7 @@ Vector2 Game::GenerateRandomMovement()
         Vector2(0,-1)
     }};
 
-    int chosenIndex = GenerateRandomNumber(possibleMovementsArray.size());
+    int chosenIndex = GenerateRandomNumber(possibleMovementsArray.size() - 1);
 
     return possibleMovementsArray[chosenIndex];
 }
@@ -435,8 +452,28 @@ GameObject::Color Game::GenerateRandomColor()
     return color;
 }
 
+template<typename Number>
+void Game::validateDistribution(Number &minimum, Number &maximum) 
+{
+    if (minimum > maximum) 
+    {
+        Number temporaryNumber = minimum;
+        minimum = maximum;
+        maximum = temporaryNumber;
+    }
+}
+
 int Game::GenerateRandomNumber(int maximum, int minimum /* = 0 */) 
 {
+    validateDistribution<int>(minimum, maximum);
+
+    if (minimum > maximum) 
+    {
+        auto temp = maximum;
+        maximum = minimum;
+        minimum = maximum;
+    }
+
     uniform_int_distribution<int> distribution(minimum, maximum); 
 
     int number_generated = distribution(this->mersenneTwisterPseudoRandomGenerator);
@@ -446,6 +483,8 @@ int Game::GenerateRandomNumber(int maximum, int minimum /* = 0 */)
 
 float Game::GenerateRandomNumber(float maximum, float minimum /* = 0.0 */) 
 {
+    validateDistribution<float>(minimum, maximum);
+
     uniform_real_distribution<float> distribution(minimum, maximum); 
 
     int number_generated = distribution(this->mersenneTwisterPseudoRandomGenerator);
@@ -455,6 +494,9 @@ float Game::GenerateRandomNumber(float maximum, float minimum /* = 0.0 */)
 
 size_t Game::GenerateRandomNumber(size_t maximum, size_t minimum /* = 0 */) 
 {
+
+    validateDistribution<size_t>(minimum, maximum);
+
     uniform_int_distribution<size_t> distribution(minimum, maximum); 
 
     size_t number_generated = distribution(this->mersenneTwisterPseudoRandomGenerator);

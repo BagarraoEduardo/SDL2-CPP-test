@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 
-#include <ctime>
+//#include <ctime>
 
 #include "../include/vector2.h"
 #include "../include/game_object.h"

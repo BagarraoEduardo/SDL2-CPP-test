@@ -4,8 +4,14 @@
 #include <vector>
 #include<random>
 
+#ifdef WIN32
+#include <SDL.h>
+#include <SDL_ttf.h>
+#else
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#endif
+
 
 #include "pooler.h"
 #include "action.h"
@@ -39,6 +45,9 @@ private:
 	int GenerateRandomNumber(int maximum, int minimum = 0);
 	float GenerateRandomNumber(float maximum, float minimum = 0.0);
     size_t GenerateRandomNumber(size_t maximum, size_t minimum = 0);
+
+    template<typename Number>
+    void validateDistribution(Number &minimum, Number &maximum);
 
     //action methods
     void ReturnGameObjectAction();

@@ -7,7 +7,7 @@ add_executable (fabamaq-application "fabamaq-application.cpp" "../include/fabama
 
 INCLUDE(FindPkgConfig)
 
-PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
+#PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
 
 target_link_libraries(fabamaq-application SDL2_ttf SDL2 )
 target_link_libraries(fabamaq-application SDL2main SDL2 )

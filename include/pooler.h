@@ -26,8 +26,6 @@ private:
 
 	Pooler();
 
-	GameObject CreateGameObject();
-
 	bool isActive;
 	int size;
 	int limit;

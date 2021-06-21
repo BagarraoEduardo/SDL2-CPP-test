@@ -1,4 +1,5 @@
 ﻿#include "../include/fabamaq-application.h"
+#undef main
 
 using namespace std;
 

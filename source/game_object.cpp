@@ -5,6 +5,12 @@
 #include <string>
 #include <cmath>
 
+#include <filesystem>
+
+
+using std::string;
+using std::filesystem::current_path;
+
 string colorTextArray[7] = { "LILAC", "YELLOW", "BLUE", "TURQUOISE", "RED", "ORANGE", "GREEN"};
 
 GameObject::~GameObject()
@@ -128,6 +134,7 @@ void GameObject::Update(float deltaTime)
 		this->position->x = static_cast<int>(newPosition.GetX());
 		this->position->y = static_cast<int>(newPosition.GetY());
 
+		//This bug is probably fixed. Test in Linux before removing this comment
 		//FIXME: known bug, sometimes the balls just get in the top left edge of the screen
 		if (newPosition.GetX() > Constants::SCREEN_WIDTH)
 		{
@@ -220,7 +227,15 @@ ostream& operator << (ostream& outStream, GameObject const& gameObject)
 
 void GameObject::LoadImageSurface()
 {
-	string folder = "./../resources/sprites/";
+
+	string folder = current_path().string();
+
+	#ifdef WIN32
+	folder =+ ".\\resources\\sprites\\";
+	#else
+	folder =+"/../resources/sprites/";
+	#endif
+
 	string filename = colorTextArray[color];
 	string extension = ".bmp";
 	

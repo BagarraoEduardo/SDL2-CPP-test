@@ -10,8 +10,6 @@ enum class Action
     STOP_GAME = 4,
     RETURN_GAME_OBJECT = 5,
     ADD_GAME_OBJECT = 6
-
-
 };
 
 #endif

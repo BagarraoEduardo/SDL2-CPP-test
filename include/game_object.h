@@ -1,7 +1,11 @@
 #ifndef GameObject_HEADER
 #define GameObject_HEADER
 
-#include "SDL2/SDL.h"
+#ifdef WIN32
+#include <SDL.h>
+#else
+#include <SDL2/SDL.h>
+#endif
 
 #include "vector2.h"
 
