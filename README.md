@@ -4,7 +4,7 @@ Created and implemented by Eduardo FIlipe Figueiredo Bagarrão, including the as
 
 This project was implemented with CMake in order to have portability to build executables either for Linux or Windows.
 
-I'll leave my git log so you could see my programming method in a higher detail.
+I'll leave my git log image so you could see my programming milestones in a higher detail. I've only merged to master after doing the release builds.
 
 The application has 2 builds. 1 for Windows 64 bits and the other one for Unix 64 bits(it has to be run on terminal). The Unity was developed and made in Ubuntu.
 
