@@ -9,19 +9,20 @@
 
 #include "vector2.h"
 
+/// <summary>
+/// Class that stores all the information about the GameObjects
+/// </summary>
 class GameObject
 {
 
 public:
+	//possible color balls
 	enum Color { LILAC, YELLOW, BLUE, TURQUOISE, RED, ORANGE, GREEN };
 
 	~GameObject();
 
-	GameObject();
 	GameObject(const GameObject& other);
-	GameObject(Vector2 position, Color color);
-	GameObject(Vector2 position, Color color, Vector2 movement);
-	GameObject(Vector2 position, Color color, Vector2 movement, float speed);
+	GameObject(Vector2 position = Vector2(0,0), Color color = Color::RED, Vector2 movement = Vector2(0,0), float speed = 0);
 
 	void Update(float deltaTime);
 
@@ -50,14 +51,16 @@ public:
 private:
 	float speed;
 
-	SDL_Rect *position;
-	Vector2 movement;
+	SDL_Rect *position; //GameObject rect
+	Vector2 movement; //movement vector. it's used as a direction
 
 	GameObject::Color color;
+	
+	//This will decide if the GameObject is currently 
+	//active(if will be rendered and it if will move)
+	bool isActive; 
 
-	bool isActive;
-
-	SDL_Surface *surface;
+	SDL_Surface *surface; //surface where the ball bitmap will be rendered
 
 	void LoadImageSurface();
 	void AdjustRect();

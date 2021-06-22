@@ -1,6 +1,9 @@
 #ifndef Action_HEADER
 #define Action_HEADER
 
+/// <summary>
+/// Different input actions
+/// </summary>
 enum class Action
 {
     NONE = 0,

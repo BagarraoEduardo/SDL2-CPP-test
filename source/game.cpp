@@ -14,6 +14,9 @@ using namespace std;
 using std::string;
 using std::filesystem::current_path;
 
+/// <summary>
+/// Constructor
+/// </summary>
 Game::Game()
 {
     this->isRunning = false;
@@ -42,6 +45,15 @@ Game::Game()
     this->mersenneTwisterPseudoRandomGenerator = mt19937(this->randomDevice());
 }
 
+/// <summary>
+/// Method that makes the game start and also
+/// that makes the game run until we exit it.
+/// 
+/// Basically it inits all the variables and objects
+/// that are needed and while the variable that
+/// defines if the game is running it's ture, the game will 
+/// loop and it will always call the update function
+/// </summary>
 void Game::Start()
 {
     try{
@@ -51,7 +63,7 @@ void Game::Start()
 
         while(isRunning) 
         {    
-            this->Update();
+            Update();
         }
     }
     catch(int errorCode)
@@ -82,6 +94,9 @@ void Game::Start()
     }
 }
 
+/// <summary>
+/// I make sure that I delete everything here when the program finishes
+/// </summary>
 Game::~Game()
 {
     if(titleFont != NULL)
@@ -127,6 +142,9 @@ Game::~Game()
     SDL_Quit();
 }
 
+/// <summary>
+/// Everything related with SDL and the pooling system is initialized here
+/// </summary>
 void Game::Init()
 {
     //needs to be before because in the pooler  
@@ -136,14 +154,17 @@ void Game::Init()
         throw Error::SDL_INIT_ERROR;
     }
 
+    //sets the pooler to have its starting size, however it can expand if needed until a defined limit
     Pooler::GetInstance()->Init(Constants::GAME_OBJECT_POOL_SIZE, Constants::GAME_OBJECT_POOL_LIMIT);
 
     for(size_t i = 0; i < Constants::GAME_OBJECT_POOL_SIZE; i++)
     {
-        AddGameObjectAction(true);
+        AddGameObjectAction(true); //Adds a gameobject to the vector that stores every gameobject that is being showed on the screen
     }
 
-    window = SDL_CreateWindow(
+
+    //sdl stuff
+    this->window = SDL_CreateWindow(
         "A Lot of Balls!",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
@@ -156,7 +177,7 @@ void Game::Init()
         throw Error::SDL_WINDOW_ERROR;
     }
 
-    windowSurface = SDL_GetWindowSurface(window);
+    this->windowSurface = SDL_GetWindowSurface(window);
     if(windowSurface == NULL)
     {
         throw Error::SDL_WINDOW_SURFACE_ERROR;
@@ -175,19 +196,19 @@ void Game::Init()
 	    folder = +"/../resources/sprites/";
     #endif
 
-    titleFont = TTF_OpenFont((folder + "abyssinca.ttf").c_str(), Constants::TITLE_FONT_SIZE);
+    this->titleFont = TTF_OpenFont((folder + "abyssinca.ttf").c_str(), Constants::TITLE_FONT_SIZE);
     if(titleFont == NULL)
     {
         throw Error::SDL_LOAD_FONT_ERROR;
     }
 
-    messageFont = TTF_OpenFont((folder + "abyssinca.ttf").c_str(), Constants::MESSAGE_FONT_SIZE);
+    this->messageFont = TTF_OpenFont((folder + "abyssinca.ttf").c_str(), Constants::MESSAGE_FONT_SIZE);
     if(messageFont == NULL)
     {
         throw Error::SDL_LOAD_FONT_ERROR;
     }
 
-    creditsTitleFontSurface = SDL_GetWindowSurface(window);
+    this->creditsTitleFontSurface = SDL_GetWindowSurface(window);
     if(creditsTitleFontSurface == NULL)
     {
         throw Error::SDL_WINDOW_SURFACE_ERROR;
@@ -196,7 +217,7 @@ void Game::Init()
     this->creditsTitleFontRect.x = (Constants::TITLE_START_RELATIVE_X * Constants::SCREEN_WIDTH) - ( creditsTitleFontSurface->w / 2);
     this->creditsTitleFontRect.y = (Constants::TITLE_START_RELATIVE_Y * Constants::SCREEN_HEIGHT) - ( creditsTitleFontSurface->h / 2);
 
-    gameStateFontSurface = SDL_GetWindowSurface(window);
+    this->gameStateFontSurface = SDL_GetWindowSurface(window);
     if(gameStateFontSurface == NULL)
     {
         throw Error::SDL_WINDOW_SURFACE_ERROR;
@@ -205,7 +226,7 @@ void Game::Init()
     this->gameStateFontRect.x = (Constants::TITLE_START_RELATIVE_X * Constants::SCREEN_WIDTH) - ( gameStateFontSurface->w / 2);
     this->gameStateFontRect.y = creditsTitleFontRect.y + Constants::TITLE_START_MARGIN;
 
-    gameObjectsQuantityFontSurface = SDL_GetWindowSurface(window);
+    this->gameObjectsQuantityFontSurface = SDL_GetWindowSurface(window);
     if(gameObjectsQuantityFontSurface == NULL)
     {
         throw Error::SDL_WINDOW_SURFACE_ERROR;
@@ -215,17 +236,14 @@ void Game::Init()
     this->gameObjectQuantityFontRect.y = gameStateFontRect.y + Constants::TITLE_START_MARGIN;
 
 
-    outOfCreditsFontSurface = SDL_GetWindowSurface(window);
+    this->outOfCreditsFontSurface = SDL_GetWindowSurface(window);
     if(outOfCreditsFontSurface == NULL)
     {
         throw Error::SDL_WINDOW_SURFACE_ERROR;
     }
 
-
     int fontWidth = 0, fontHeight = 0;
-
     TTF_SizeText(messageFont, Constants::MESSAGE_OUT_OF_CREDITS.c_str(), &fontWidth, &fontHeight);
-
     this->outOfCreditsFontRect.w = fontWidth;
     this->outOfCreditsFontRect.h = fontHeight;
 
@@ -233,50 +251,63 @@ void Game::Init()
     this->outOfCreditsFontRect.y = (Constants::SCREEN_HEIGHT / 2) - (outOfCreditsFontRect.h / 2);
 }
 
+/// <summary>
+/// Method that handles all the events 
+/// </summary>
 void Game::HandleEvents()
 {
     SDL_Event event;
     if (SDL_PollEvent(&event))
     {
-        keyActionToTake = Action::NONE;
+        this->keyActionToTake = Action::NONE;
 
         if (event.type == SDL_QUIT)
         {
-            isRunning = false;
+            this->isRunning = false; //this will make the game exit
         }
         else  if (event.type == SDL_KEYDOWN)
         {
+            //this will set the action that will be handled in the HandleLogic method. Only 
+            // variables are set here, none of the logic is implemented here
+
             switch (event.key.keysym.sym)
             {
             case SDLK_1:
-                keyActionToTake = Action::INSERT_CREDIT;
+                this->keyActionToTake = Action::INSERT_CREDIT;
                 break;
             case SDLK_2:
-                keyActionToTake = Action::REMOVE_ALL_CREDITS;
+                this->keyActionToTake = Action::REMOVE_ALL_CREDITS;
                 break;
             case SDLK_z:
-                keyActionToTake = Action::PLAY_GAME;
+                this->keyActionToTake = Action::PLAY_GAME;
                 break;
             case SDLK_x:
-                keyActionToTake = Action::STOP_GAME;
+                this->keyActionToTake = Action::STOP_GAME;
                 break;
             case SDLK_DOWN:
-                keyActionToTake = Action::RETURN_GAME_OBJECT;
+                this->keyActionToTake = Action::RETURN_GAME_OBJECT;
                 break;
             case SDLK_UP:
-                keyActionToTake = Action::ADD_GAME_OBJECT;
+                this->keyActionToTake = Action::ADD_GAME_OBJECT;
                 break;
             default:
-                keyActionToTake = Action::NONE;
+                this->keyActionToTake = Action::NONE;
                 break;
             }
         }
     }
 }
 
+/// <summary>
+/// Methos that handles all the logic that happens in the game
+/// </summary>
+/// <param name="deltaTime">the gameobjects move based on a deltatime that is defined at the start of each frame</param>
 void Game::HandleLogic(float deltaTime)
 {
-    if(this->keyActionToTake != this->lastActionToken)
+    //now the actions will be handled
+    //it will ignore if the last action was the same
+    //to avoid repeated clicks. It's better to see the things happen here
+    if(keyActionToTake != lastActionToken)
     {
         switch(keyActionToTake)
         {
@@ -304,12 +335,15 @@ void Game::HandleLogic(float deltaTime)
         }
     }
 
-    this->lastActionToken = this->keyActionToTake;
+    this->lastActionToken = keyActionToTake;
     
-    if(this->isPlaying)
+    if(isPlaying)
     {
-        outOfCreditsMessageTime = Constants::MESSAGE_OUT_OF_CREDITS_DISABLED;
+        //disables the message that shows that you're out of credits
+        this->outOfCreditsMessageTime = Constants::MESSAGE_OUT_OF_CREDITS_DISABLED;
 
+        //this will make every gameObject that was active in the game 
+        //update their stats
         for (size_t i = 0; i < gameObjectPointerVector.size(); i++)
         {
             GameObject *pointedGameObject = gameObjectPointerVector[i];
@@ -321,30 +355,36 @@ void Game::HandleLogic(float deltaTime)
     {
         if(outOfCreditsMessageTime > 0)
         {
-            float timeToSubtract = ((SDL_GetTicks() - frameEndTicks) / 1000.0);
-                
-            SDL_Log("%s", to_string(timeToSubtract).c_str());
+            //this manages how much time the message that shows you're out of credits lasts on screen
+            //the code only goes here when the message is showing
 
+            float timeToSubtract = ((SDL_GetTicks() - frameEndTicks) / 1000.0);
             this->outOfCreditsMessageTime -= timeToSubtract;
         }
     }
 }
 
+/// <summary>
+/// Method that renders all into the screen.
+/// It runs once every frame
+/// </summary>
 void Game::HandleRendering()
 {
-    SDL_Color white = { 255, 255, 255 };
+    SDL_Color white = { 255, 255, 255 }; //color to draw the fonts
 
-    SDL_FillRect(windowSurface, NULL, SDL_MapRGB(windowSurface->format, 0, 0, 0));
+    SDL_FillRect(windowSurface, NULL, SDL_MapRGB(windowSurface->format, 0, 0, 0)); //simple black background
 
+    //this is the code to render the balls, it will only run while playing
+    //as the balls are not intended be rendered when not playing
     if(this->isPlaying)
     {
-        int activeGameObjectsNumber = 0;
+        int activeGameObjectsNumber = 0; //counter to display in the screen the number of active gameobjects
 
         for(size_t i = 0; i < gameObjectPointerVector.size(); i++)
         {
             GameObject * gameObjectPointerToRender = gameObjectPointerVector[i];
 
-            if(gameObjectPointerToRender->IsActive())
+            if(gameObjectPointerToRender->IsActive()) //for safety will only draw an active gameobject
             {
                 SDL_Surface * surfaceToRender = gameObjectPointerToRender->GetSurface();
                 
@@ -353,19 +393,22 @@ void Game::HandleRendering()
                 
                 SDL_BlitSurface(surfaceToRender, NULL, windowSurface, &parameterRect);
 
-                ++activeGameObjectsNumber;
+                ++activeGameObjectsNumber; //increases the counter of active gameobjects
             }
         }
 
+        //this will print the number of active gameobjects. when not playing this isn't showed
         string gameObjectQuantityMessage = Constants::TITLE_GAME_OBJECTS_QUANTITY + to_string(activeGameObjectsNumber);
-        gameObjectsQuantityFontSurface = TTF_RenderText_Solid(titleFont, gameObjectQuantityMessage.c_str() , white);
+        this->gameObjectsQuantityFontSurface = TTF_RenderText_Solid(titleFont, gameObjectQuantityMessage.c_str() , white);
         SDL_BlitSurface(gameObjectsQuantityFontSurface, NULL, windowSurface, &gameObjectQuantityFontRect);
     }
     else
     {
         if (outOfCreditsMessageTime > 0)
         {
-            outOfCreditsFontSurface = TTF_RenderText_Solid(messageFont, Constants::MESSAGE_OUT_OF_CREDITS.c_str(), white);
+            //if the time to show the message that says that you're out 
+            //of credits is bigger than zero then it will be showed
+            this->outOfCreditsFontSurface = TTF_RenderText_Solid(messageFont, Constants::MESSAGE_OUT_OF_CREDITS.c_str(), white);
             SDL_BlitSurface(outOfCreditsFontSurface, NULL, windowSurface, &outOfCreditsFontRect);
         }
     }
@@ -376,12 +419,15 @@ void Game::HandleRendering()
     creditsTitleFontSurface = TTF_RenderText_Solid(titleFont, creditsTitleMessage.c_str() , white);
     gameStateFontSurface = TTF_RenderText_Solid(titleFont, gameStateMessage.c_str() , white);
     
-    SDL_BlitSurface(creditsTitleFontSurface, NULL, windowSurface, &creditsTitleFontRect);
-    SDL_BlitSurface(gameStateFontSurface, NULL, windowSurface, &gameStateFontRect);
+    SDL_BlitSurface(creditsTitleFontSurface, NULL, windowSurface, &creditsTitleFontRect); //the title that shows the number of credits
+    SDL_BlitSurface(gameStateFontSurface, NULL, windowSurface, &gameStateFontRect); //this shows the current state of the game
 
     SDL_UpdateWindowSurface(window);
 }
 
+/// <summary>
+/// The method were delta time is generated and where all the Handler methods are called
+/// </summary>
 void Game::Update()
 {
     float deltaTime = GenerateDeltaTime();
@@ -395,6 +441,10 @@ void Game::Update()
     this->frameEndTicks = SDL_GetTicks();
 }
 
+/// <summary>
+/// Method that generates the deltatime to apply on the gameobjects movement speed
+/// </summary>
+/// <returns>deltatime</returns>
 float Game::GenerateDeltaTime()
 {
     while (!SDL_TICKS_PASSED(SDL_GetTicks(), frameTicks + static_cast<Uint32>(16.666f)))
@@ -404,6 +454,10 @@ float Game::GenerateDeltaTime()
 
     float deltaTime = static_cast<float>((SDL_GetTicks() - frameTicks)) / 1000.0;
 
+    //as SDL is pixel based and I'm using float variables to calculate deltaTime, 
+    // I've tried to not clamp it too small, as I was risking that the value
+    //multiplied by the objects speed was less than zero, and rounding the value
+    // to the gameobject rect wouldn't move it from the previous position
     if (deltaTime < 0.5)
     {
         deltaTime = 0.5;
@@ -412,6 +466,10 @@ float Game::GenerateDeltaTime()
     return deltaTime;
 }
 
+/// <summary>
+/// This generates a random position to place the ball in the game
+/// </summary>
+/// <returns>randomPosition</returns>
 Vector2 Game::GenerateRandomPosition()
 {
     float minWidth, maxWidth, minHeight, maxHeight;
@@ -427,6 +485,11 @@ Vector2 Game::GenerateRandomPosition()
     return Vector2(randomWidth, randomHeight);
 }
 
+/// <summary>
+/// This generates a random movement Vector to set on a gameobject
+/// This is currently set to be either or only horizontal or vertical movement
+/// </summary>
+/// <returns>randomMovement</returns>
 Vector2 Game::GenerateRandomMovement()
 {
     const size_t length = 4;
@@ -443,6 +506,10 @@ Vector2 Game::GenerateRandomMovement()
     return possibleMovementsArray[chosenIndex];
 }
 
+/// <summary>
+/// Method that generates a random color to be set on a gameobject
+/// </summary>
+/// <returns>gameObject</returns>
 GameObject::Color Game::GenerateRandomColor()
 {
     int chosenIndex = GenerateRandomNumber(GameObject::Color::GREEN);
@@ -452,6 +519,14 @@ GameObject::Color Game::GenerateRandomColor()
     return color;
 }
 
+/// <summary>
+/// This is used to validate the arguments to use on the ransom generator methods
+/// because in SDL the higher it is, the lower the Y value is, so when where in that case
+/// the value between the minimum and maximum are swapped
+/// </summary>
+/// <typeparam name="Number">Number</typeparam>
+/// <param name="minimum">minimum</param>
+/// <param name="maximum">maximum</param>
 template<typename Number>
 void Game::validateDistribution(Number &minimum, Number &maximum) 
 {
@@ -463,6 +538,12 @@ void Game::validateDistribution(Number &minimum, Number &maximum)
     }
 }
 
+/// <summary>
+/// Generates a random number
+/// </summary>
+/// <param name="maximum">maximum</param>
+/// <param name="minimum">minimum</param>
+/// <returns>ransomNumber</returns>
 int Game::GenerateRandomNumber(int maximum, int minimum /* = 0 */) 
 {
     validateDistribution<int>(minimum, maximum);
@@ -481,6 +562,12 @@ int Game::GenerateRandomNumber(int maximum, int minimum /* = 0 */)
     return number_generated;
 }
 
+/// <summary>
+/// Generates a random number
+/// </summary>
+/// <param name="maximum">maximum</param>
+/// <param name="minimum">minimum</param>
+/// <returns>ransomNumber</returns>
 float Game::GenerateRandomNumber(float maximum, float minimum /* = 0.0 */) 
 {
     validateDistribution<float>(minimum, maximum);
@@ -492,6 +579,12 @@ float Game::GenerateRandomNumber(float maximum, float minimum /* = 0.0 */)
     return number_generated;
 }
 
+/// <summary>
+/// Generates a random number
+/// </summary>
+/// <param name="maximum">maximum</param>
+/// <param name="minimum">minimum</param>
+/// <returns>ransomNumber</returns>
 size_t Game::GenerateRandomNumber(size_t maximum, size_t minimum /* = 0 */) 
 {
 
@@ -504,10 +597,14 @@ size_t Game::GenerateRandomNumber(size_t maximum, size_t minimum /* = 0 */)
     return number_generated;
 }
 
+/// <summary>
+/// Action that is called to release a gameobject to the pooling system
+/// </summary>
 void Game::ReturnGameObjectAction()
 {
     if(this->isPlaying)
     {
+        //it only where when there are active gameobject in the screen
         if(gameObjectPointerVector.size() > 0)
         {
             int chosenIndexToReturn; 
@@ -518,11 +615,13 @@ void Game::ReturnGameObjectAction()
 
             do
             {
+                //it will choose a gameobject that doesn't point to null from the ones that are in the screen
+
                 int chosenIndexToReturn = GenerateRandomNumber(gameObjectPointerVector.size() - 1);
 
                 if(++numberOfTries > Constants::GENERIC_LOOP_TIMEOUT)
                 {
-                    didTimeout = true;
+                    didTimeout = true; //to make sure an infinite loop is avoided here
                     break;
                 }
 
@@ -530,12 +629,16 @@ void Game::ReturnGameObjectAction()
 
             } while(gameObjectToBeReturnedPointer == nullptr);
         
+            //just to make sure that I avout an infinite loop
             if(didTimeout)
             {
                 SDL_Log("Timeout reached while searching for an available gameobject to avoid the possibility of having infinite loops.");
             }
             else
             {
+                //it will call the method to release the gameobject and will remove it from 
+                //the vector that stores all the active gameobjects in the game
+
                Pooler::GetInstance()->Return(gameObjectToBeReturnedPointer);
 
                gameObjectPointerVector.erase(
@@ -556,29 +659,38 @@ void Game::ReturnGameObjectAction()
     }
 }
 
+/// <summary>
+/// Action to add the gameobject. It's used on players action but also at the game start
+/// </summary>
+/// <param name="isInitializing">isInitializing</param>
 void Game::AddGameObjectAction(bool isInitializing)
 {
-    if(isInitializing || this->isPlaying)
+    if(isInitializing || isPlaying)
     {
+        //it will not return nothing when reaching the limit
         if (!Pooler::GetInstance()->HasNext())
         {
             SDL_Log("The pooling system is being used to its full capacity at this moment.");
         }
         else
         {
-            GameObject *gameObjectPointerToStore = Pooler::GetInstance()->GetNext(GameObject::Color::RED);
+            //it will retrieve the next available gameobject and it will set it with the random variables
+
+            GameObject::Color randomColor = GenerateRandomColor();
+
+            GameObject *gameObjectPointerToStore = Pooler::GetInstance()->GetNext(randomColor);
 
             Vector2 randomPosition = GenerateRandomPosition();
             Vector2 randomMovement = GenerateRandomMovement();
-            GameObject::Color randomColor = GenerateRandomColor();
 
             float randomSpeed = GenerateRandomNumber(Constants::GAME_OBJECT_MAX_SPEED, Constants::GAME_OBJECT_MIN_SPEED);
 
-            gameObjectPointerToStore->SetColor(randomColor);
+            //gameObjectPointerToStore->SetColor(randomColor);
             gameObjectPointerToStore->SetPosition(randomPosition);
             gameObjectPointerToStore->SetMovement(randomMovement);
             gameObjectPointerToStore->SetSpeed(randomSpeed);
 
+            //it will make the object ready to be rendered on the screen
             if (!gameObjectPointerToStore->IsActive())
             {
                 gameObjectPointerToStore->SetActive(true);
@@ -588,6 +700,9 @@ void Game::AddGameObjectAction(bool isInitializing)
     }
 }
 
+/// <summary>
+/// Action to start a new game
+/// </summary>
 void Game::PlayAction()
 {
     if(isPlaying)
@@ -596,10 +711,13 @@ void Game::PlayAction()
     }
     else
     {
+        //it only will start in case you have enough credits to play
+
         if(credits > 0)
         {
             --credits;
             
+            //unfreeze the gameobjects
             Pooler::GetInstance()->Freezed(false, gameObjectPointerVector);
             this->isPlaying = true;
 
@@ -615,8 +733,12 @@ void Game::PlayAction()
     }
 }
 
+/// <summary>
+/// Action that will stop the current game
+/// </summary>
 void Game::StopAction()
 {
+    //returns all the gameobjects to the pool that are above the normal pool size
     while(gameObjectPointerVector.size() > Constants::GAME_OBJECT_POOL_SIZE)
     {
         ReturnGameObjectAction();
@@ -624,6 +746,7 @@ void Game::StopAction()
 
     if(this->isPlaying)
     {
+        //the other ones will be all freezed
          Pooler::GetInstance()->Freezed(true, gameObjectPointerVector);
          SDL_Log("The game stopped.");
     }
@@ -634,6 +757,9 @@ void Game::StopAction()
     this->isPlaying = false;
 }
 
+/// <summary>
+/// Action to insert credits
+/// </summary>
 void Game::InsertCreditAction()
 {
     ++this->credits;
@@ -643,6 +769,9 @@ void Game::InsertCreditAction()
     SDL_Log("%s", message.c_str());
 }
 
+/// <summary>
+/// Action to remove all credits
+/// </summary>
 void Game::RemoveAllCreditsAction()
 {
     this->credits = 0;

@@ -22,27 +22,6 @@ GameObject::~GameObject()
 	delete position;
 }
 
-GameObject::GameObject()
-{
-	this->speed = 0;
-
-	this->position = new SDL_Rect;
-
-	this->position->x = 0;
-	this->position->y = 0;
-
-	this->movement = Vector2(0,0);
-
-	this->color = Color::RED;
-
-	this->isActive = true;
-
-	this->surface = NULL;
-
-	LoadImageSurface();
-	AdjustRect();
-}
-
 GameObject::GameObject(const GameObject& other) 
 {
 	this->speed = other.speed;
@@ -56,45 +35,6 @@ GameObject::GameObject(const GameObject& other)
 
 	this->isActive = true;
 
-	this->surface = NULL;
-
-	LoadImageSurface();
-	AdjustRect();
-}
-
-GameObject::GameObject(Vector2 position, Color color)
-{
-	this->position = new SDL_Rect;
-
-	this->position->x = position.GetX();
-	this->position->y = position.GetY();
-	
-	this->color = color;
-
-	speed = 0;
-	movement = Vector2(0, 0);
-
-	this->isActive = true;
-	
-	this->surface = NULL;
-
-	LoadImageSurface();
-	AdjustRect();
-}
-
-GameObject::GameObject(Vector2 position, Color color, Vector2 movement)
-{
-	this->position = new SDL_Rect;
-
-	this->position->x = position.GetX();
-	this->position->y = position.GetY();
-
-	this->color = color;
-	this->movement = movement;
-	this->speed = 0;
-	
-	this->isActive = true;
-	
 	this->surface = NULL;
 
 	LoadImageSurface();
@@ -120,22 +60,27 @@ GameObject::GameObject(Vector2 position, Color color, Vector2 movement, float sp
 	AdjustRect();
 }
 
+/// <summary>
+/// Update function that will set the gameobject movement over time
+/// </summary>
+/// <param name="deltaTime">deltatime</param>
 void GameObject::Update(float deltaTime)
 {
 	if (this->isActive)
 	{
+		//i prefer to round always up the deltaTime(in this case)
 		int roundedDeltaTime = static_cast<int>(deltaTime + 0.5);
 
 		Vector2 currentPosition(position->x, position->y);
-		Vector2 sumVector = movement * speed * roundedDeltaTime;
+		Vector2 sumVector = movement * speed * roundedDeltaTime; //vector that I'll sum to the current gameobject's position
 
-		Vector2 newPosition = currentPosition + sumVector;
+		Vector2 newPosition = currentPosition + sumVector; //using operator overloading
 
 		this->position->x = static_cast<int>(newPosition.GetX());
 		this->position->y = static_cast<int>(newPosition.GetY());
 
-		//This bug is probably fixed. Test in Linux before removing this comment
-		//FIXME: known bug, sometimes the balls just get in the top left edge of the screen
+		//after the gameobject reaches the end of the screen in some way 
+		//it's set in the opposite side of its direction axis
 		if (newPosition.GetX() > Constants::SCREEN_WIDTH)
 		{
 			this->position->x = 0;
@@ -225,6 +170,9 @@ ostream& operator << (ostream& outStream, GameObject const& gameObject)
 	return outStream;
 }
 
+/// <summary>
+/// Method used to load the gameobject bitmap
+/// </summary>
 void GameObject::LoadImageSurface()
 {
 
@@ -256,6 +204,9 @@ void GameObject::LoadImageSurface()
 
 }
 
+/// <summary>
+/// Mathos that sets initially the gameobject rect
+/// </summary>
 void GameObject::AdjustRect()
 {
 	this->position->x -= (this->position->w/2);

@@ -1,6 +1,9 @@
 #ifndef Constants_HEADER
 #define Constants_HEADER
 
+/// <summary>
+/// Class where the project constants are stored
+/// </summary>
 class Constants
 {
 public:

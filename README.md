@@ -41,10 +41,9 @@ Doing this project for the application increased my motivation even more! Workin
 
 ## What could be improved
 
-I have a bug that I couldn't afford to solve it in time. Sometimes some balls get stuck in the top left edge of the screen.
+I feel I have a lot to improve, I would like to implement this but in a multi-threaded paradigm(Java was my background). Hope I can have oportunity to do it soon
 
-I also would like to add a simple music loop that I've made in FL Studio, but I didn't also had time to implement it on game. You can watch it on the resources folder!
-
+I also would like to add a simple music loop that I've made in FL Studio, but I didn't also had time to implement it on game. You can watch it on the resources folder of the project!
 
 ***
 

@@ -1,6 +1,9 @@
 #ifndef Error_H
 #define Error_H
 
+/// <summary>
+/// Namespace to store all SDL errors
+/// </summary>
 namespace Error
 {
   static const int SDL_INIT_ERROR = 1;
