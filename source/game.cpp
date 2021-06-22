@@ -193,7 +193,7 @@ void Game::Init()
     #ifdef WIN32
 	    folder = +".\\resources\\fonts\\";
     #else
-	    folder = +"/../resources/sprites/";
+	    folder = +"./resources/fonts/";
     #endif
 
     this->titleFont = TTF_OpenFont((folder + "abyssinca.ttf").c_str(), Constants::TITLE_FONT_SIZE);

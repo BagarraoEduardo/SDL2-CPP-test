@@ -6,6 +6,8 @@ This project was implemented with CMake in order to have portability to build ex
 
 I'll leave my git log so you could see my programming method in a higher detail.
 
+The application has 2 builds. 1 for Windows 64 bits and the other one for Unix 64 bits(it has to be run on terminal). The Unity was developed and made in Ubuntu.
+
 ## About the game
 
 The projects consists in managing a resource pool of balls that are moving either vertically or horizontally at different speeds. The pool as an initial size that can be expanded until a certain limit in some cases, but when the resources are not needed any more and are returned to the pool, if the pool is currently above it's default size, the size will be restored.

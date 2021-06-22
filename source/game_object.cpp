@@ -181,7 +181,7 @@ void GameObject::LoadImageSurface()
 	#ifdef WIN32
 	folder =+ ".\\resources\\sprites\\";
 	#else
-	folder =+"/../resources/sprites/";
+	folder = + "./resources/sprites/";
 	#endif
 
 	string filename = colorTextArray[color];
