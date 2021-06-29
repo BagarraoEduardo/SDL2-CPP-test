@@ -36,7 +36,7 @@ You can see on the top left corner of the game your current credits, if you're p
 
 ## My experience
 
-Doing this project for the application increased my motivation even more! Working with C++ feels exciting and challenging!
+Working with C++ feels exciting and challenging!
 
 ## What could be improved
 
